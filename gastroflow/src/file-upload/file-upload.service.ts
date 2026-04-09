@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../users/entities/user.entity";
 import { Repository } from "typeorm";
-import { FileUploadRepository } from "./file-upload.reposiroty";
+import { FileUploadRepository } from "./file-upload.repository";
 
 @Injectable()
 export class FileUploadService {
@@ -14,7 +14,7 @@ export class FileUploadService {
   async uploadFile(userId: string, file: Express.Multer.File): Promise<User>{
 
     const foundUser = await this.userRepository.findOneBy({id: userId});
-    if(!foundUser) throw new NotFoundException(`Producto con id: ${userId} no encontrado`)
+    if(!foundUser) throw new NotFoundException(`User with id: ${userId} not found`)
 
     const response = await this.fileUploadRepository.uploadImage(file);
 
