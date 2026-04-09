@@ -59,6 +59,12 @@ export class User {
     })
     is_active!: boolean
 
+    @Column({
+        type: 'varchar', 
+        nullable: true 
+    })
+    imgUrl!:string;
+
     @CreateDateColumn()
     created_at!: Date
 
