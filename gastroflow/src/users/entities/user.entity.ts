@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { AuthProvider, UserRole } from "../../common/user.enums";
 
 @Entity({
@@ -8,6 +8,9 @@ export class User {
     
     @PrimaryGeneratedColumn('uuid')
     id!: string
+
+    @Column({ type: 'uuid', nullable: false })
+    restaurant_id!:string
     
     @Column({
         type: 'varchar',
@@ -36,7 +39,7 @@ export class User {
         length: 70,
         nullable: true,
     })
-    password!: string
+    password_hash!: string
  
     @Column({
         type: 'enum',
@@ -59,9 +62,9 @@ export class User {
     @CreateDateColumn()
     created_at!: Date
 
-    @CreateDateColumn()
+    @UpdateDateColumn()
     updated_at!: Date
 
-    @CreateDateColumn()
+    @DeleteDateColumn()
     deleted_at!: Date
 }   
