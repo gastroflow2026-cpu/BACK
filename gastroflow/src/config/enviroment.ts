@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.development' });
 
 export const environment = {
   HOST: process.env.HOST || 'localhost',
@@ -8,7 +8,7 @@ export const environment = {
   DB_USERNAME: process.env.DB_USERNAME,
   DB_NAME: process.env.DB_NAME,
   DB_HOST: process.env.DB_HOST || 'localhost',
-  DB_PORT: process.env.DB_PORT || 5433,
+  DB_PORT: process.env.DB_PORT || 5432,
   DB_PASSWORD: process.env.DB_PASSWORD,
 
 //   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
