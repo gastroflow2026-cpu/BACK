@@ -1,5 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../users/dto/user.dto';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
 import { UsersRepository } from '../users/user.repository';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -8,8 +8,8 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
     constructor(
     private readonly usersRepository: UsersRepository,
-   // private readonly jwtService: JwtService, // para uso del SIGNIN
-  ) {}
+    private readonly jwtService: JwtService, // para uso del SIGNIN
+    ) {}
 
 
     async signUp(newUserData: CreateUserDto) {
@@ -28,7 +28,29 @@ export class AuthService {
 
     return await this.usersRepository.createUser({
       ...newUserData,
-      password: hashedPassword,
+      password_hash: hashedPassword,
       });
+    }
+
+    async signIn(email: string, password: string){
+      const dbUser = await this.usersRepository.getUserByEmail(email);
+      if(!dbUser) throw new NotFoundException('Email o passwords incorrectos');
+      const isPasswordValid = await bcrypt.compare(password, dbUser.password_hash);
+      if(!isPasswordValid) throw new BadRequestException('Email o passwords incorrectos');
+      const userPayload = {
+          id: dbUser.id,
+          name: dbUser.first_name,
+          email: dbUser.email,
+      }
+      const token = this.jwtService.sign(userPayload, {
+        expiresIn: '1h'
+        });
+      
+      return {success: 'Usuario Logueado', token, 
+        user: {
+          id: dbUser.id,
+          name: dbUser.first_name,
+          email: dbUser.email,
+        }}
     }
 }

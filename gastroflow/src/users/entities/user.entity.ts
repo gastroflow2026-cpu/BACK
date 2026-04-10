@@ -9,7 +9,7 @@ export class User {
     @PrimaryGeneratedColumn('uuid')
     id!: string
 
-    @Column({ type: 'uuid', nullable: false })
+    @Column({ type: 'uuid', nullable: true })
     restaurant_id!:string
     
     @Column({
@@ -51,6 +51,7 @@ export class User {
     @Column({
         type: 'enum',
         enum: AuthProvider,
+        default: AuthProvider.LOCAL_AUTH
     })
     auth_provider!: AuthProvider
 
@@ -61,7 +62,8 @@ export class User {
 
     @Column({
         type: 'varchar', 
-        nullable: true 
+        nullable: true, 
+        default: 'Sin imágen'
     })
     imgUrl!:string;
 
