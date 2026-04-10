@@ -11,7 +11,7 @@ export class FileUploadService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>
   ){}
-  async uploadFile(userId: string, file: Express.Multer.File): Promise<User>{
+  async uploadFile(userId: string, file: Express.Multer.File): Promise<string>{
 
     const foundUser = await this.userRepository.findOneBy({id: userId});
     if(!foundUser) throw new NotFoundException(`User with id: ${userId} not found`)
@@ -23,7 +23,7 @@ export class FileUploadService {
     
     const updatedUser = await this.userRepository.findOneBy({id: userId});
     if(!updatedUser) throw NotFoundException;
-    return updatedUser;
+    return `Imagen del usario con id: ${userId} actualizada correctamente`;
   }
 
 }
