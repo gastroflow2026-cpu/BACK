@@ -14,5 +14,5 @@ export const typeOrmConfig = registerAs('typeorm', () => ({
   autoLoadEntities: true,
   synchronize: true,
   logging: false,
-  dropSchema: false, // false: se quedan los datos, true se borran los datos
+  dropSchema: true, // false: se quedan los datos, true se borran los datos
 }));
