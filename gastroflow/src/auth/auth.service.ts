@@ -3,6 +3,8 @@ import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
 import { UsersRepository } from '../users/user.repository';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { UserRole } from '../common/user.enums';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -37,20 +39,59 @@ export class AuthService {
       if(!dbUser) throw new NotFoundException('Email o passwords incorrectos');
       const isPasswordValid = await bcrypt.compare(password, dbUser.password_hash);
       if(!isPasswordValid) throw new BadRequestException('Email o passwords incorrectos');
-      const userPayload = {
+      
+      const payLoad = {
           id: dbUser.id,
           name: dbUser.first_name,
           email: dbUser.email,
+          roles: this.assignRoles(dbUser),
+          auth_provider: dbUser.auth_provider,
       }
-      const token = this.jwtService.sign(userPayload, {
+      const token = this.jwtService.sign(payLoad, {
         expiresIn: '1h'
         });
       
-      return {success: 'Usuario Logueado', token, 
+      return {
+        success: 'Usuario Logueado', 
+        token: token,
         user: {
           id: dbUser.id,
           name: dbUser.first_name,
           email: dbUser.email,
-        }}
+          roles: this.assignRoles(dbUser),
+          auth_provider: dbUser.auth_provider,
+        }
+      }
+    }
+
+    private assignRoles(user: User): UserRole[] {
+      const roles: UserRole[] = [user.role];
+      
+      // SUPER_ADMIN tiene todos los permisos
+      if (user.role === UserRole.SUPER_ADMIN) {
+        return [UserRole.SUPER_ADMIN, UserRole.REST_ADMIN, UserRole.WAITER, UserRole.CHEF, UserRole.CASHIER, UserRole.CUSTOMER];
+      }
+      
+      // REST_ADMIN puede actuar como admin, waiter y customer
+      if (user.role === UserRole.REST_ADMIN) {
+        roles.push(UserRole.WAITER, UserRole.CUSTOMER);
+      }
+      
+      // CHEF puede actuar como waiter y customer
+      if (user.role === UserRole.CHEF) {
+        roles.push(UserRole.CUSTOMER);
+      }
+      
+      // WAITER puede actuar como customer
+      if (user.role === UserRole.WAITER) {
+        roles.push(UserRole.CUSTOMER);
+      }
+      
+      // CASHIER puede actuar como customer
+      if (user.role === UserRole.CASHIER) {
+        roles.push(UserRole.CUSTOMER);
+      }
+      
+      return roles;
     }
 }

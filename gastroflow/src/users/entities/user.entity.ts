@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn, JoinColumn } from "typeorm";
 import { AuthProvider, UserRole } from "../../common/user.enums";
+import { Restaurant } from "../../restaurants/entities/restaurant.entity";
 
 @Entity({
     name: 'USERS'
@@ -11,6 +12,10 @@ export class User {
 
     @Column({ type: 'uuid', nullable: true })
     restaurant_id!:string
+
+    @ManyToOne(() => Restaurant, (restaurant) => restaurant.users)
+    @JoinColumn({ name: 'restaurant_id' })
+    restaurant!: Restaurant
     
     @Column({
         type: 'varchar',
