@@ -3,10 +3,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  JoinColumn,
 } from 'typeorm';
 import { AuthProvider, UserRole } from '../../common/user.enums';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
@@ -76,7 +76,6 @@ export class User {
   @Column({
     type: 'varchar',
     nullable: true,
-    default: 'Sin imágen',
   })
   imgUrl!: string;
 
