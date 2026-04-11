@@ -1,83 +1,91 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn, JoinColumn } from "typeorm";
-import { AuthProvider, UserRole } from "../../common/user.enums";
-import { Restaurant } from "../../restaurants/entities/restaurant.entity";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  JoinColumn,
+} from 'typeorm';
+import { AuthProvider, UserRole } from '../../common/user.enums';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity({
-    name: 'USERS'
+  name: 'USERS',
 })
 export class User {
-    
-    @PrimaryGeneratedColumn('uuid')
-    id!: string
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-    @Column({ type: 'uuid', nullable: true })
-    restaurant_id!:string
+  @Column({ type: 'uuid', nullable: true })
+  restaurant_id!: string;
 
-    @ManyToOne(() => Restaurant, (restaurant) => restaurant.users)
-    @JoinColumn({ name: 'restaurant_id' })
-    restaurant!: Restaurant
-    
-    @Column({
-        type: 'varchar',
-        length: 50,
-        nullable: false,
-    })
-    first_name!: string
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.users)
+  @JoinColumn({ name: 'restaurant_id' })
+  restaurant!: Restaurant;
 
-    @Column({
-        type: 'varchar',
-        length: 50,
-        nullable: false,
-    })
-    last_name!: string
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+  })
+  first_name!: string;
 
-    @Column({
-        type: 'varchar',
-        length: 50,
-        nullable: false,
-        unique: true
-    })
-    email!: string
-       
-    @Column({
-        type: 'varchar',
-        length: 70,
-        nullable: true,
-    })
-    password_hash!: string
- 
-    @Column({
-        type: 'enum',
-        enum: UserRole,
-        default: UserRole.CUSTOMER,
-    })
-    role!: UserRole
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+  })
+  last_name!: string;
 
-    @Column({
-        type: 'enum',
-        enum: AuthProvider,
-        default: AuthProvider.LOCAL_AUTH
-    })
-    auth_provider!: AuthProvider
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+    unique: true,
+  })
+  email!: string;
 
-    @Column({
-        default: true
-    })
-    is_active!: boolean
+  @Column({
+    type: 'varchar',
+    length: 70,
+    nullable: true,
+  })
+  password_hash!: string;
 
-    @Column({
-        type: 'varchar', 
-        nullable: true, 
-        default: 'Sin imágen'
-    })
-    imgUrl!:string;
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.CUSTOMER,
+  })
+  role!: UserRole;
 
-    @CreateDateColumn()
-    created_at!: Date
+  @Column({
+    type: 'enum',
+    enum: AuthProvider,
+    default: AuthProvider.LOCAL_AUTH,
+  })
+  auth_provider!: AuthProvider;
 
-    @UpdateDateColumn()
-    updated_at!: Date
+  @Column({
+    default: true,
+  })
+  is_active!: boolean;
 
-    @DeleteDateColumn()
-    deleted_at!: Date
-}   
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    default: 'Sin imágen',
+  })
+  imgUrl!: string;
+
+  @CreateDateColumn()
+  created_at!: Date;
+
+  @UpdateDateColumn()
+  updated_at!: Date;
+
+  @DeleteDateColumn()
+  deleted_at!: Date;
+}
