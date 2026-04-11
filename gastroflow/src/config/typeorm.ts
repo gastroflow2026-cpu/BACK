@@ -9,10 +9,10 @@ export const typeOrmConfig = registerAs('typeorm', () => ({
   port: Number(environment.DB_PORT),
   username: environment.DB_USERNAME,
   password: environment.DB_PASSWORD,
-  entities: ['dist/*/.entity{.ts,.js}'],
+  entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
   autoLoadEntities: true,
   synchronize: true,
   logging: false,
-  dropSchema: false, // false: se quedan los datos, true se borran los datos
+  dropSchema: true, // false: se quedan los datos, true se borran los datos
 }));

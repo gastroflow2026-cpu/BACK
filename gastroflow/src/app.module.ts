@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { RestauratModule } from './restaurants/entities/restaurant.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -19,7 +20,7 @@ import { FileUploadModule } from './file-upload/file-upload.module';
   TypeOrmModule.forRootAsync({
     inject: [ConfigService],
     useFactory: (ConfigService: ConfigService) => ConfigService.get('typeorm')!,
-  }), UsersModule, AuthModule, AuthModule, FileUploadModule,
+  }), UsersModule, AuthModule, AuthModule, FileUploadModule, RestauratModule,
   JwtModule.register({
     global: true,
     signOptions: {expiresIn: '60m'},

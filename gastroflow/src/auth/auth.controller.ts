@@ -1,6 +1,14 @@
-import { Body, Controller, Get, HttpCode, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { GoogleAuth } from 'google-auth-library';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -15,15 +23,16 @@ export class AuthController {
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
-  googleCallback() {}
-
+  async googleCallback(@Req() req, @Res() res) {
+    const response = await this.authService.loginWithProvider(req.user);
+    res.redirect(`http://localhost:3001?token=${response.token}`)
+  }
 
   @HttpCode(201)
-  @Post('signup')
-  @ApiOperation({summary: 'Registro de un nuevo usuario'})
+  @ApiOperation({ summary: 'Registro de un nuevo usuario' })
   @ApiResponse({
-  status: 201,
-  description: 'Usuario registrado correctamente',
+    status: 201,
+    description: 'Usuario registrado correctamente',
   })
   @ApiResponse({
     status: 400,
@@ -39,20 +48,19 @@ export class AuthController {
   })
   @ApiBody({
     type: CreateUserDto,
-    description: 'Datos necesarios para crear un nuevo usuario'
+    description: 'Datos necesarios para crear un nuevo usuario',
   })
   @Post('signup')
   signUp(@Body() newUserData: CreateUserDto) {
     return this.authService.signUp(newUserData);
   }
 
-
   @HttpCode(200)
   @Post('signin')
-  @ApiOperation({summary: 'Inicio de sesión del usuario'})
+  @ApiOperation({ summary: 'Inicio de sesión del usuario' })
   @ApiResponse({
-  status: 200,
-  description: 'Inicio de sesión exitoso. Retorna el token JWT.',
+    status: 200,
+    description: 'Inicio de sesión exitoso. Retorna el token JWT.',
   })
   @ApiResponse({
     status: 400,
@@ -68,9 +76,8 @@ export class AuthController {
   })
   @ApiBody({
     type: LoginUserDto,
-    description: 'Datos necesarios para iniciar sesión'
+    description: 'Datos necesarios para iniciar sesión',
   })
-
   signIn(@Body() userData: LoginUserDto) {
     return this.authService.signIn(userData.email, userData.password);
   }

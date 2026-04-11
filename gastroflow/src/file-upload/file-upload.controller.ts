@@ -1,9 +1,15 @@
-import { Controller, FileTypeValidator, HttpCode, MaxFileSizeValidator, Param, ParseFilePipe, ParseUUIDPipe, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
-import { User } from "../users/entities/user.entity";
+import { Controller, FileTypeValidator, HttpCode, MaxFileSizeValidator, Param, ParseFilePipe, ParseUUIDPipe, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { FileUploadService } from "./file-upload.service";
-import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { AuthGuard } from "../auth/guards/Auth.guard";
+import { RolesGuard } from "../auth/guards/Role.guard";
+import { Role } from "../decorators/roles.decorators";
+import { UserRole } from "../common/user.enums";
 
+@ApiBearerAuth()
+@UseGuards(AuthGuard, RolesGuard)
+@Role(UserRole.REST_ADMIN)
 @ApiTags('File-Uploads')
 @Controller('files')
 export class FileUploadController {

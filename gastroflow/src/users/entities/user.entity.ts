@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AuthProvider, UserRole } from '../../common/user.enums';
-import { Restaurant } from '../../restaurants/entities/restaurant.entitiy';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity({
   name: 'USERS',
@@ -76,7 +76,6 @@ export class User {
   @Column({
     type: 'varchar',
     nullable: true,
-    default: 'Sin imágen',
   })
   imgUrl!: string;
 
