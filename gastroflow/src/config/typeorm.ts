@@ -1,18 +1,19 @@
-import { registerAs} from '@nestjs/config';
+import { registerAs } from '@nestjs/config';
 import { environment } from './enviroment';
 
 export const typeOrmConfig = registerAs('typeorm', () => ({
   type: 'postgres',
-  database: environment.DB_NAME,
-  // host:'postgresdb',
-  host: environment.DB_HOST,
-  port: Number(environment.DB_PORT),
-  username: environment.DB_USERNAME,
-  password: environment.DB_PASSWORD,
-  entities: ['dist/**/*.entity{.ts,.js}'],
-  migrations: ['dist/migrations/*{.ts,.js}'],
+  url: environment.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
   autoLoadEntities: true,
   synchronize: true,
-  logging: false,
-  dropSchema: true, // false: se quedan los datos, true se borran los datos
+  logging: true,
+  dropSchema: false,
 }));
