@@ -18,7 +18,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'uuid', nullable: false })
+  @Column({ type: 'uuid', nullable: true })
   restaurant_id!: string;
 
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.users)

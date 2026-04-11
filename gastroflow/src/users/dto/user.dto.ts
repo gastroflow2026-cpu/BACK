@@ -3,8 +3,10 @@ import {
   IsEmpty,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsStrongPassword,
+  IsUrl,
   IsUUID,
   MaxLength,
   MinLength,
@@ -15,13 +17,17 @@ import { MatchPassword } from '../../decorators/matchPassword';
 import { AuthProvider, UserRole } from '../../common/user.enums';
 import { OmitType, PartialType, PickType } from '@nestjs/mapped-types';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { Url } from 'url';
 
 export class CreateUserDto {
   @IsString({ message: 'Nombre debe ser un string' })
   @IsNotEmpty({ message: 'Nombre no puede estar vacio' })
   @MinLength(3, { message: 'Minimo 3 caracteres' })
   @MaxLength(20, { message: 'Maximo 20 caracteres' })
-  @ApiProperty({description:'Debe ser un string de entre 3 y 20 caracteres', example: 'test_first_name'})
+  @ApiProperty({
+    description: 'Debe ser un string de entre 3 y 20 caracteres',
+    example: 'test_first_name',
+  })
   first_name!: string;
 
   @IsString({ message: 'Apellido debe ser un string' })
@@ -29,13 +35,19 @@ export class CreateUserDto {
   @MinLength(3, { message: 'Minimo 3 caracteres' })
   @MaxLength(60, { message: 'Maximo 60 caracteres' })
   @IsString()
-  @ApiProperty({description:'Debe ser un string de entre 3 y 60 caracteres', example: 'test_last_name'})
+  @ApiProperty({
+    description: 'Debe ser un string de entre 3 y 60 caracteres',
+    example: 'test_last_name',
+  })
   last_name!: string;
 
   @IsNotEmpty({ message: 'Email no puede ser vacio' })
   @IsEmail()
   @IsString()
-  @ApiProperty({description:'Debe ser un email válido', example: 'TestUser01@mail.com'})
+  @ApiProperty({
+    description: 'Debe ser un email válido',
+    example: 'TestUser01@mail.com',
+  })
   email!: string;
 
   @IsString()
@@ -55,13 +67,20 @@ export class CreateUserDto {
     },
   )
   @IsString()
-  @ApiProperty({description:'Debe tener mínimo una mayúscula, un número, un caracter especial y una minúscula', 
-  example: 'Testpassword01!'})
+  @ApiProperty({
+    description:
+      'Debe tener mínimo una mayúscula, un número, un caracter especial y una minúscula',
+    example: 'Testpassword01!',
+  })
   password!: string;
 
   @IsNotEmpty()
   @Validate(MatchPassword, ['password'])
-  @ApiProperty({description:'Debe tener mínimo una mayúscula, un número, un caracter especial y una minúscula', example: 'Testpassword01!'})
+  @ApiProperty({
+    description:
+      'Debe tener mínimo una mayúscula, un número, un caracter especial y una minúscula',
+    example: 'Testpassword01!',
+  })
   confirmPassword!: string;
 
   @ApiHideProperty()
@@ -70,7 +89,7 @@ export class CreateUserDto {
   restaurant_id!: string;
 
   @ApiHideProperty()
-  @IsEmpty()//! Verificar quien va a definir rol
+  @IsEmpty() //! Verificar quien va a definir rol
   @IsEnum(UserRole)
   role!: UserRole;
 
@@ -81,15 +100,22 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto extends PartialType(
-  OmitType(CreateUserDto, ['password', 'confirmPassword', 'role', 'auth_provider']),
+  OmitType(CreateUserDto, [
+    'password',
+    'confirmPassword',
+    'role',
+    'auth_provider',
+  ]),
 ) {}
 
 export class LoginUserDto {
-
   @IsNotEmpty({ message: 'Email no puede ser vacio' })
   @IsEmail()
   @IsString()
-  @ApiProperty({description:'Debe ser un email válido', example: 'TestUser01@mail.com'})
+  @ApiProperty({
+    description: 'Debe ser un email válido',
+    example: 'TestUser01@mail.com',
+  })
   email!: string;
 
   @IsString()
@@ -109,8 +135,10 @@ export class LoginUserDto {
     },
   )
   @IsString()
-  @ApiProperty({description:'Debe tener mínimo una mayúscula, un número, un caracter especial y una minúscula', example: 'Testpassword01!'})
+  @ApiProperty({
+    description:
+      'Debe tener mínimo una mayúscula, un número, un caracter especial y una minúscula',
+    example: 'Testpassword01!',
+  })
   password!: string;
 }
-
-
