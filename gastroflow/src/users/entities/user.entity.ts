@@ -64,6 +64,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: AuthProvider,
+    default: AuthProvider.LOCAL_AUTH,
   })
   auth_provider!: AuthProvider;
 

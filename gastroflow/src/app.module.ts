@@ -7,6 +7,9 @@ import googleOauthConfig from './config/google-oauth.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { FileUploadModule } from './file-upload/file-upload.module';
+import { RestauratModule } from './restaurants/entities/restaurant.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -17,7 +20,12 @@ import { AuthModule } from './auth/auth.module';
   TypeOrmModule.forRootAsync({
     inject: [ConfigService],
     useFactory: (ConfigService: ConfigService) => ConfigService.get('typeorm')!,
-  }), UsersModule, AuthModule, 
+  }), UsersModule, AuthModule, AuthModule, FileUploadModule, RestauratModule,
+  JwtModule.register({
+    global: true,
+    signOptions: {expiresIn: '60m'},
+    secret: process.env.JWT_SECRET,
+  })
   
 ],
   controllers: [AppController],

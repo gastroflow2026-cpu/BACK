@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuth } from 'google-auth-library';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
-import { CreateUserDto } from '../users/dto/user.dto';
+import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -16,8 +17,61 @@ export class AuthController {
   @Get('google/callback')
   googleCallback() {}
 
+
+  @HttpCode(201)
+  @Post('signup')
+  @ApiOperation({summary: 'Registro de un nuevo usuario'})
+  @ApiResponse({
+  status: 201,
+  description: 'Usuario registrado correctamente',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos inválidos para el registro',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'El email ya está registrado',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+  })
+  @ApiBody({
+    type: CreateUserDto,
+    description: 'Datos necesarios para crear un nuevo usuario'
+  })
   @Post('signup')
   signUp(@Body() newUserData: CreateUserDto) {
     return this.authService.signUp(newUserData);
+  }
+
+
+  @HttpCode(200)
+  @Post('signin')
+  @ApiOperation({summary: 'Inicio de sesión del usuario'})
+  @ApiResponse({
+  status: 200,
+  description: 'Inicio de sesión exitoso. Retorna el token JWT.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos inválidos',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Credenciales incorrectas',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+  })
+  @ApiBody({
+    type: LoginUserDto,
+    description: 'Datos necesarios para iniciar sesión'
+  })
+
+  signIn(@Body() userData: LoginUserDto) {
+    return this.authService.signIn(userData.email, userData.password);
   }
 }
