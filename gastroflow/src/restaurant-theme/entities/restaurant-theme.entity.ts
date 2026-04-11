@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Restaurant } from '../../restaurants/entities/restaurant.entitiy';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity({
   name: 'RESTAURANT_THEMES',
