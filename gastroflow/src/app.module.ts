@@ -9,7 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
-import { RestauratModule } from './restaurants/entities/restaurant.module';
+import { RestaurantModule } from './restaurants/restaurant.module';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { RestauratModule } from './restaurants/entities/restaurant.module';
     AuthModule,
     AuthModule,
     FileUploadModule,
-    RestauratModule,
+    RestaurantModule,
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },

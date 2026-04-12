@@ -9,8 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { RestaurantTheme } from '../../restaurant-theme/entities/restaurant-theme.entity';
-
+//import { RestaurantTheme } from '../../restaurant-theme/entities/restaurant-theme.entity';
 @Entity({
   name: 'RESTAURANTS',
 })
@@ -90,8 +89,8 @@ export class Restaurant {
   @OneToMany(() => User, (user) => user.restaurant)
   users!: User[];
 
-  @OneToOne(() => RestaurantTheme, (theme) => theme.restaurant)
-  theme!: RestaurantTheme;
+  //@OneToOne(() => RestaurantTheme, (theme) => theme.restaurant)
+  //theme!: RestaurantTheme;
 
   @CreateDateColumn()
   created_at!: Date;
