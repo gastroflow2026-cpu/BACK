@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { MenuCategory } from './menu-category.entity';
+import { MenuItemStatus } from '../../common/menu.enum';
 
 @Entity({ name: 'MENU_ITEMS' })
 export class MenuItem {
@@ -77,6 +78,19 @@ export class MenuItem {
     nullable: true,
   })
   prep_time_minutes!: number;
+
+  @Column({
+    type: 'enum',
+    enum: MenuItemStatus,
+    default: MenuItemStatus.AVAILABLE,
+  })
+  status!: MenuItemStatus;
+
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  display_order!: number;
 
   @CreateDateColumn()
   created_at!: Date;
