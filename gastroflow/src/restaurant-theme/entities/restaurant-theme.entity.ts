@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-//import { Restaurant } from '../../restaurants/entities/restaurant.entitiy';
+import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
 @Entity({
   name: 'RESTAURANT_THEMES',
@@ -24,9 +24,9 @@ export class RestaurantTheme {
   })
   restaurant_id!: string;
 
-  // @OneToOne(() => Restaurant)
-  //@JoinColumn({ name: 'restaurant_id' })
-  //restaurant!: Restaurant;
+  @OneToOne(() => Restaurant)
+  @JoinColumn({ name: 'restaurant_id' })
+  restaurant!: Restaurant;
 
   @Column({
     type: 'varchar',
