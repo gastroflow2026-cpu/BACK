@@ -9,25 +9,31 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
-import { RestauratModule } from './restaurants/entities/restaurant.module';
+import { RestaurantModule } from './restaurants/restaurant.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true,
-    envFilePath: ['.env.development', '.env'],
-    load: [typeOrmConfig, googleOauthConfig]
-  }),
-  TypeOrmModule.forRootAsync({
-    inject: [ConfigService],
-    useFactory: (ConfigService: ConfigService) => ConfigService.get('typeorm')!,
-  }), UsersModule, AuthModule, AuthModule, FileUploadModule, RestauratModule,
-  JwtModule.register({
-    global: true,
-    signOptions: {expiresIn: '60m'},
-    secret: process.env.JWT_SECRET,
-  })
-  
-],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.development', '.env'],
+      load: [typeOrmConfig, googleOauthConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (ConfigService: ConfigService) =>
+        ConfigService.get('typeorm')!,
+    }),
+    UsersModule,
+    AuthModule,
+    AuthModule,
+    FileUploadModule,
+    RestaurantModule,
+    JwtModule.register({
+      global: true,
+      signOptions: { expiresIn: '60m' },
+      secret: process.env.JWT_SECRET,
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
