@@ -39,6 +39,12 @@ export class MenuCategory {
   @OneToMany(() => MenuItem, (menuItem) => menuItem.category)
   menu_items!: MenuItem[];
 
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  display_order!: number;
+
   @CreateDateColumn()
   created_at!: Date;
 

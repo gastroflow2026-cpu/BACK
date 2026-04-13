@@ -3,9 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { MenuItem } from './entities/menu-item.entity';
 import { MenuCategory } from './entities/menu-category.entity';
+import { MenuService } from './menu.service';
+import { MenuController } from './menu.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MenuItem, MenuCategory])],
-  exports: [TypeOrmModule],
+  controllers: [MenuController],
+  providers: [MenuService],
+  exports: [MenuService],
 })
 export class MenuModule {}
