@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { RestaurantModule } from './restaurants/restaurant.module';
+import { MenuModule } from './menu/menu.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RestaurantModule } from './restaurants/restaurant.module';
     AuthModule,
     AuthModule,
     FileUploadModule,
+    MenuModule,
     RestaurantModule,
     JwtModule.register({
       global: true,
