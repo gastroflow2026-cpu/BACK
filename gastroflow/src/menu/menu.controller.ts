@@ -8,8 +8,18 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
+import { AuthGuard } from '../auth/guards/Auth.guard';
+import { RolesGuard } from '../auth/guards/Role.guard';
+import { Role } from '../decorators/roles.decorators';
+import { UserRole } from '../common/user.enums';
 
 import { MenuService } from './menu.service';
 import {
@@ -100,5 +110,35 @@ export class MenuController {
     @Body('status') status: MenuItemStatus,
   ) {
     return this.menuService.updateItemStatus(id, status);
+  }
+
+  @Delete('items/:id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(UserRole.REST_ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar platillo del menú' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID del platillo',
+  })
+  removeItem(@Param('id', ParseUUIDPipe) id: string) {
+    return this.menuService.removeItem(id);
+  }
+
+  // =========================
+  // SEED
+  // =========================
+
+  @Post('seed')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(UserRole.REST_ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Cargar seed inicial del menú Bella Vita',
+    description:
+      'Crea categorías e ítems base del menú para pruebas en Swagger y demo académica.',
+  })
+  seedMenu() {
+    return this.menuService.seedMenu();
   }
 }
