@@ -27,6 +27,82 @@ export class MenuService {
   ) {}
 
   // =========================
+  // PUBLIC
+  // =
+  async getPublicMenu() {
+    const categories = await this.menuCategoryRepository.find({
+      where: { is_active: true },
+      order: {
+        display_order: 'ASC',
+        created_at: 'ASC',
+      },
+    });
+
+    const result = await Promise.all(
+      categories.map(async (category) => {
+        const items = await this.menuItemRepository.find({
+          where: {
+            category_id: category.id,
+            status: MenuItemStatus.AVAILABLE,
+          },
+          order: {
+            display_order: 'ASC',
+            created_at: 'ASC',
+          },
+        });
+
+        return {
+          category_id: category.id,
+          category_name: category.name,
+          category_description: category.description,
+          display_order: category.display_order,
+          items,
+        };
+      }),
+    );
+
+    return result.filter((group) => group.items.length > 0);
+  }
+
+  // =========================
+  // ADMIN
+  // =========================
+
+  async getAdminMenu() {
+    const categories = await this.menuCategoryRepository.find({
+      where: { is_active: true },
+      order: {
+        display_order: 'ASC',
+        created_at: 'ASC',
+      },
+    });
+
+    const result = await Promise.all(
+      categories.map(async (category) => {
+        const items = await this.menuItemRepository.find({
+          where: {
+            category_id: category.id,
+          },
+          order: {
+            display_order: 'ASC',
+            created_at: 'ASC',
+          },
+        });
+
+        return {
+          category_id: category.id,
+          category_name: category.name,
+          category_description: category.description,
+          display_order: category.display_order,
+          items,
+        };
+      }),
+    );
+
+    return result;
+  }
+
+  // =========================
   // CATEGORY METHODS
   //
 
@@ -216,5 +292,10 @@ export class MenuService {
     item.status = status;
 
     return await this.menuItemRepository.save(item);
+  }
+
+  async removeItem(id: string): Promise<MenuItem> {
+    const item = await this.findOneItem(id);
+    return await this.menuItemRepository.remove(item);
   }
 }
