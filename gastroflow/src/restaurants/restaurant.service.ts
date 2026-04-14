@@ -10,8 +10,9 @@ export class RestaurantService {
     @InjectRepository(Restaurant)
     private readonly restaurantRepository: Repository<Restaurant>,
   ) {}
-  //*Obtener el restaurante principal (single-tenant por ahora)
-  async getProfile() {
+
+  //* Obtener restaurante principal (single-tenant por ahora)
+  async getProfile(): Promise<Restaurant> {
     const restaurant = await this.restaurantRepository.findOne({
       where: { is_active: true },
     });
@@ -19,10 +20,36 @@ export class RestaurantService {
     if (!restaurant) {
       throw new NotFoundException('No existe restaurante configurado');
     }
+
     return restaurant;
   }
 
-  //*Actualizar perfil del Restaurante
+  //* Endpoint público para landing
+  async getPublicRestaurant() {
+    const restaurant = await this.restaurantRepository.findOne({
+      where: { is_active: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        phone: true,
+        email: true,
+        address: true,
+        city: true,
+        country: true,
+        logo_url: true,
+        description: true,
+      },
+    });
+
+    if (!restaurant) {
+      throw new NotFoundException('No existe restaurante público configurado');
+    }
+
+    return restaurant;
+  }
+
+  //* Actualizar perfil del restaurante
   async updateProfile(dto: UpdateRestaurantDto): Promise<Restaurant> {
     const restaurant = await this.getProfile();
 

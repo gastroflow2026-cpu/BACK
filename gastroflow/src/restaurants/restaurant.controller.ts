@@ -8,10 +8,16 @@ import { UpdateRestaurantDto } from './dto/restaurant.dto';
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
-  //*Obtener perfil del restaurante
+  //* Obtener perfil interno del restaurante
   @Get('profile')
   getProfile() {
     return this.restaurantService.getProfile();
+  }
+
+  //* Endpoint público para landing
+  @Get('public')
+  getPublicRestaurant() {
+    return this.restaurantService.getPublicRestaurant();
   }
 
   //* Actualizar perfil
