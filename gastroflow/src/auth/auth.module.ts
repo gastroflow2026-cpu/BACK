@@ -7,6 +7,7 @@ import { User } from '../users/entities/user.entity';
 import { ConfigModule } from '@nestjs/config';
 import googleOauthConfig from '../config/google-oauth.config';
 import { GoogleStrategy } from '../strategies/google.strategy';
+import { UsersModule } from '../users/users.module';
 import { UsersRepository } from '../users/user.repository';
 
 @Module({
@@ -14,8 +15,10 @@ import { UsersRepository } from '../users/user.repository';
     PassportModule.register({ session: false }),
     TypeOrmModule.forFeature([User]),
     ConfigModule.forFeature(googleOauthConfig),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, GoogleStrategy, UsersRepository],
+  exports: [AuthService, UsersRepository]
 })
 export class AuthModule {}
