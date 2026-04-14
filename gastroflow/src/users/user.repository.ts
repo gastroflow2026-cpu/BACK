@@ -11,7 +11,7 @@ export class UsersRepository {
 
         const allUsers = await this.ormUsersRepository.find();
 
-        return allUsers.map(({ password_hash, ...userNoPassword }) => userNoPassword)
+        return allUsers.map(({ password_hash, ...userNoPassword }) => userNoPassword);
     }
     async createUser(newUserData: Partial<User>): Promise<string> {
        

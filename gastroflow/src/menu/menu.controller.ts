@@ -20,12 +20,6 @@ import { AuthGuard } from '../auth/guards/Auth.guard';
 import { RolesGuard } from '../auth/guards/Role.guard';
 import { Role } from '../decorators/roles.decorators';
 import { UserRole } from '../common/user.enums';
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
-
 import { MenuService } from './menu.service';
 import {
   CreateMenuCategoryDto,
@@ -33,11 +27,8 @@ import {
 } from './dto/menu-category.dto';
 import { CreateMenuItemDto, UpdateMenuItemDto } from './dto/menu-item.dto';
 import { QueryMenuItemsDto } from './dto/query-menu-items.dto';
-import { AuthGuard } from '../auth/guards/Auth.guard';
-import { RolesGuard } from '../auth/guards/Role.guard';
-import { UserRole } from '../common/user.enums';
 import { MenuItemStatus } from '../common/menu.enum';
-import { Role } from '../decorators/roles.decorators';
+
 
 @ApiTags('Menu')
 @Controller('menu')

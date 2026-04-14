@@ -4,15 +4,24 @@ import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import googleOauthConfig from '../config/google-oauth.config';
 import { GoogleStrategy } from '../strategies/google.strategy';
 import { UsersModule } from '../users/users.module';
 import { UsersRepository } from '../users/user.repository';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     PassportModule.register({ session: false }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1h' },
+      }),
+    }),
     TypeOrmModule.forFeature([User]),
     ConfigModule.forFeature(googleOauthConfig),
     UsersModule,

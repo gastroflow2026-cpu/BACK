@@ -4,6 +4,7 @@ import { User } from './entities/user.entity';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/Role.guard';
+import { Role } from '../decorators/roles.decorators';
 
 
 @ApiTags('users')
@@ -22,7 +23,7 @@ export class UsersController {
     status: 401,
     description: 'No autorizado',
   })
-  @UseGuards(AuthGuard, RolesGuard)
+  //@UseGuards(AuthGuard('jwt'), RolesGuard)
   async getAllUsers(): Promise<Omit<User, 'password_hash'>[]> {
     return this.usersService.getAllUsers();
   }

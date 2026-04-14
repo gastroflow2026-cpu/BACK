@@ -16,7 +16,7 @@ import { CreateGoogleUserDto } from '../users/dto/CreateGoogleUserDto';
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly jwtService: JwtService, // para uso del SIGNIN
+    private readonly jwtService: JwtService, 
   ) {}
 
   async signUp(newUserData: CreateUserDto) {
