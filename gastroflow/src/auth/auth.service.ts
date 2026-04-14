@@ -42,6 +42,12 @@ export class AuthService {
   async signIn(email: string, password: string) {
     const dbUser = await this.usersRepository.getUserByEmail(email);
     if (!dbUser) throw new NotFoundException('Email o passwords incorrectos');
+    if (dbUser.auth_provider === AuthProvider.GOOGLE_AUTH) {
+      throw new BadRequestException(
+        'Este correo ya está registrado',
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(
       password,
       dbUser.password_hash,
@@ -106,6 +112,12 @@ export class AuthService {
     );
 
     if (existingUser) {
+      if (existingUser.auth_provider !== AuthProvider.GOOGLE_AUTH) {
+        throw new BadRequestException(
+          'Este correo ya está registrado',
+        );
+      }
+
       return existingUser;
     }
 
@@ -163,3 +175,4 @@ export class AuthService {
     return roles;
   }
 }
+

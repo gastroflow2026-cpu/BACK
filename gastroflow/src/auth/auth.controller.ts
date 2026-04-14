@@ -18,10 +18,32 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({
+    summary: 'Inicio de sesión con Google',
+    description:
+      'Inicia el flujo de autenticación con Google y redirige al usuario a la pantalla de consentimiento.',
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirección a Google para autenticar al usuario.',
+  })
   @Get('google/login')
   googleLogin() {}
 
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({
+    summary: 'Callback de Google',
+    description:
+      'Endpoint utilizado por Google para completar la autenticación. Genera el token y redirige al frontend.',
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirección al frontend con el token JWT generado.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'No se pudo autenticar al usuario con Google.',
+  })
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
     const response = await this.authService.loginWithProvider(req.user);
