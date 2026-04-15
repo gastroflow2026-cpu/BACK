@@ -29,7 +29,6 @@ import {
 } from './dto/menu-category.dto';
 import { CreateMenuItemDto, UpdateMenuItemDto } from './dto/menu-item.dto';
 import { QueryMenuItemsDto } from './dto/query-menu-items.dto';
-import { MenuItemStatus } from '../common/menu.enum';
 
 @ApiTags('Menu')
 @Controller('menu')
