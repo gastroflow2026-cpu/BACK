@@ -11,15 +11,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
-  ApiOperation,
-  ApiTags,
   ApiBearerAuth,
+  ApiOperation,
   ApiParam,
+  ApiTags,
 } from '@nestjs/swagger';
+
 import { AuthGuard } from '../auth/guards/Auth.guard';
 import { RolesGuard } from '../auth/guards/Role.guard';
 import { Role } from '../decorators/roles.decorators';
 import { UserRole } from '../common/user.enums';
+
 import { MenuService } from './menu.service';
 import {
   CreateMenuCategoryDto,
@@ -28,7 +30,6 @@ import {
 import { CreateMenuItemDto, UpdateMenuItemDto } from './dto/menu-item.dto';
 import { QueryMenuItemsDto } from './dto/query-menu-items.dto';
 import { MenuItemStatus } from '../common/menu.enum';
-
 
 @ApiTags('Menu')
 @Controller('menu')
@@ -50,7 +51,7 @@ export class MenuController {
 
   // =========================
   // ADMIN - VISTA GENERAL
-  //
+  // =========================
 
   @Get('admin')
   @UseGuards(AuthGuard, RolesGuard)
@@ -73,9 +74,7 @@ export class MenuController {
   @UseGuards(AuthGuard, RolesGuard)
   @Role(UserRole.REST_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Crear categoría del menú',
-  })
+  @ApiOperation({ summary: 'Crear categoría del menú' })
   createCategory(@Body() dto: CreateMenuCategoryDto) {
     return this.menuService.createCategory(dto);
   }
@@ -100,9 +99,7 @@ export class MenuController {
   @UseGuards(AuthGuard, RolesGuard)
   @Role(UserRole.REST_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Actualizar categoría del menú',
-  })
+  @ApiOperation({ summary: 'Actualizar categoría del menú' })
   @ApiParam({
     name: 'id',
     description: 'ID de la categoría',
@@ -119,7 +116,7 @@ export class MenuController {
   @Role(UserRole.REST_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Eliminar categoría del menú',
+    summary: 'Desactivar categoría del menú',
     description:
       'Debe validar que no existan ítems asociados antes de eliminarla.',
   })
@@ -164,9 +161,7 @@ export class MenuController {
   @UseGuards(AuthGuard, RolesGuard)
   @Role(UserRole.REST_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Actualizar platillo del menú',
-  })
+  @ApiOperation({ summary: 'Actualizar platillo del menú' })
   @ApiParam({
     name: 'id',
     description: 'ID del ítem',
