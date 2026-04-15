@@ -26,7 +26,6 @@ import { MenuModule } from './menu/menu.module';
     }),
     UsersModule,
     AuthModule,
-    AuthModule,
     FileUploadModule,
     MenuModule,
     RestaurantModule,

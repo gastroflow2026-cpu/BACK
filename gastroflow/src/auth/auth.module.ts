@@ -8,6 +8,11 @@ import { ConfigModule } from '@nestjs/config';
 import googleOauthConfig from '../config/google-oauth.config';
 import { GoogleStrategy } from '../strategies/google.strategy';
 import { UsersRepository } from '../users/user.repository';
+import { GoogleLoginGuard } from './guards/google-auth/google.login.guard';
+import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
+import { GoogleRegisterGuard } from './guards/google-auth/google.register.guard';
+
+
 
 @Module({
   imports: [
@@ -16,6 +21,14 @@ import { UsersRepository } from '../users/user.repository';
     ConfigModule.forFeature(googleOauthConfig),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, UsersRepository],
+  providers: [
+  AuthService,
+  GoogleStrategy,
+  UsersRepository,
+  GoogleLoginGuard,
+  GoogleAuthGuard,
+  GoogleRegisterGuard
+],
+
 })
 export class AuthModule {}

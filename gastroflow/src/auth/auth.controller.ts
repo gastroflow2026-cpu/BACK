@@ -12,12 +12,14 @@ import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { GoogleLoginGuard } from './guards/google-auth/google.login.guard';
+import { GoogleRegisterGuard } from './guards/google-auth/google.register.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(GoogleAuthGuard)
+  @UseGuards(GoogleLoginGuard)
   @ApiOperation({
     summary: 'Inicio de sesión con Google',
     description:
@@ -29,6 +31,18 @@ export class AuthController {
   })
   @Get('google/login')
   googleLogin() {}
+  @UseGuards(GoogleRegisterGuard)
+  @ApiOperation({
+    summary: 'Registro con Google',
+    description:
+      'Inicia el flujo de registro con Google y redirige al usuario a la pantalla de consentimiento.',
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirección a Google para registrar al usuario.',
+  })
+  @Get('google/register')
+  googleRegister() {}
 
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({
@@ -46,8 +60,37 @@ export class AuthController {
   })
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
+    const isRegisterFlow = req.query?.state === 'register';
+    const errorBaseUrl = isRegisterFlow
+      ? 'http://localhost:3001/register'
+      : 'http://localhost:3001/login';
+    if (res.headersSent) {
+      return;
+    }
+
+    if (!req.user) {
+      if (!req.query?.code && !req.query?.error) {
+        return res.status(204).send();
+      }
+
+      return res.redirect(`${errorBaseUrl}?error=google_auth_failed`);
+    }
+
     const response = await this.authService.loginWithProvider(req.user);
-    res.redirect(`http://localhost:3001?token=${response.token}`)
+
+    console.log('[AuthController.googleCallback] success', {
+      query: req.query,
+      userId: req.user?.id,
+      email: req.user?.email,
+    });
+
+    if (res.headersSent) {
+      return;
+    }
+
+    return res.redirect(
+      `http://localhost:3001?token=${encodeURIComponent(response.token)}`,
+    );
   }
 
   @HttpCode(201)
