@@ -7,7 +7,12 @@ import { Repository } from "typeorm";
 export class UsersRepository {
     constructor(@InjectRepository(User) private ormUsersRepository: Repository<User>) {}
 
+    async getAllUsers(): Promise<Omit<User, 'password_hash'>[]> {
 
+        const allUsers = await this.ormUsersRepository.find();
+
+        return allUsers.map(({ password_hash, ...userNoPassword }) => userNoPassword);
+    }
     async createUser(newUserData: Partial<User>): Promise<string> {
        
     const user = this.ormUsersRepository.create(newUserData);
