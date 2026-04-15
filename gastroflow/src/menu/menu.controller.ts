@@ -43,27 +43,10 @@ export class MenuController {
   @Get('public')
   @ApiOperation({
     summary: 'Obtener menú público',
-    description: 'Retorna el menú visible al público, agrupado por categorías.',
+    description: 'Retorna el menú visible al público',
   })
   getPublicMenu() {
     return this.menuService.getPublicMenu();
-  }
-
-  // =========================
-  // ADMIN - VISTA GENERAL
-  // =========================
-
-  @Get('admin')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Role(UserRole.REST_ADMIN)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Obtener menú admin',
-    description:
-      'Retorna todas las categorías e ítems para administración, incluyendo inactivos o agotados.',
-  })
-  getAdminMenu() {
-    return this.menuService.getAdminMenu();
   }
 
   // =========================
@@ -100,10 +83,6 @@ export class MenuController {
   @Role(UserRole.REST_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Actualizar categoría del menú' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID de la categoría',
-  })
   updateCategory(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateMenuCategoryDto,
@@ -115,15 +94,7 @@ export class MenuController {
   @UseGuards(AuthGuard, RolesGuard)
   @Role(UserRole.REST_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Desactivar categoría del menú',
-    description:
-      'Debe validar que no existan ítems asociados antes de eliminarla.',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'ID de la categoría',
-  })
+  @ApiOperation({ summary: 'Desactivar categoría del menú' })
   removeCategory(@Param('id', ParseUUIDPipe) id: string) {
     return this.menuService.removeCategory(id);
   }
@@ -149,10 +120,6 @@ export class MenuController {
 
   @Get('items/:id')
   @ApiOperation({ summary: 'Obtener platillo por id' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID del platillo',
-  })
   findOneItem(@Param('id', ParseUUIDPipe) id: string) {
     return this.menuService.findOneItem(id);
   }
@@ -162,10 +129,6 @@ export class MenuController {
   @Role(UserRole.REST_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Actualizar platillo del menú' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID del ítem',
-  })
   updateItem(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateMenuItemDto,
@@ -174,14 +137,7 @@ export class MenuController {
   }
 
   @Patch('items/:id/status')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Role(UserRole.REST_ADMIN)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Actualizar estado del platillo' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID del platillo',
-  })
   updateItemStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('status') status: MenuItemStatus,
@@ -194,10 +150,6 @@ export class MenuController {
   @Role(UserRole.REST_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Eliminar platillo del menú' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID del platillo',
-  })
   removeItem(@Param('id', ParseUUIDPipe) id: string) {
     return this.menuService.removeItem(id);
   }
@@ -212,8 +164,6 @@ export class MenuController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Cargar seed inicial del menú Bella Vita',
-    description:
-      'Crea categorías e ítems base del menú para pruebas en Swagger y demo académica.',
   })
   seedMenu() {
     return this.menuService.seedMenu();
