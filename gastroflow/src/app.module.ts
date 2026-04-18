@@ -11,6 +11,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { RestaurantModule } from './restaurants/restaurant.module';
 import { MenuModule } from './menu/menu.module';
+import { RestaurantTablesModule } from './restaurant_tables/restaurant_tables.module';
+import { ReservationsModule } from './reservations/reservations.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { MenuModule } from './menu/menu.module';
     FileUploadModule,
     MenuModule,
     RestaurantModule,
+    RestaurantTablesModule,
+    ReservationsModule,
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },
