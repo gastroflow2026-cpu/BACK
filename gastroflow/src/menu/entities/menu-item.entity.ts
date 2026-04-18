@@ -50,10 +50,10 @@ export class MenuItem {
   price!: string;
 
   @Column({
-    type: 'varchar',
+    type: 'text',
     nullable: true,
   })
-  image_url!: string;
+  image_url?: string;
 
   @Column({
     type: 'boolean',
