@@ -11,13 +11,19 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { RestaurantTables } from '../../restaurant_tables/entities/restaurant_table.entity';
 import { Reservation } from '../../reservations/entities/reservation.entity';
+import { Subscription } from '../../subscriptions/entities/subscription.entity';
 //import { RestaurantTheme } from '../../restaurant-theme/entities/restaurant-theme.entity';
+import { Notification } from '../../notification/entities/notification.entity';
 @Entity({
   name: 'RESTAURANTS',
 })
 export class Restaurant {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  //RELACION CON NOTIFICATION
+  @OneToMany(() => Notification, (notification) => notification.restaurant)
+  notifications!: Notification[];
 
   @Column({
     type: 'varchar',
@@ -96,6 +102,9 @@ export class Restaurant {
 
   @OneToMany(() => Reservation, (reservation) => reservation.restaurant)
   reservations!: Reservation[];
+
+  @OneToMany(() => Subscription, (subscription) => subscription.restaurant)
+  subscriptions!: Subscription[];
 
   //@OneToOne(() => RestaurantTheme, (theme) => theme.restaurant)
   //theme!: RestaurantTheme;
