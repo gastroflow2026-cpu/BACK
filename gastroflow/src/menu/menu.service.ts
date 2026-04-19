@@ -301,13 +301,7 @@ export class MenuService {
   // =========================
 
   async seedMenu() {
-    const existingCategories = await this.menuCategoryRepository.count();
-
-    if (existingCategories > 0) {
-      throw new BadRequestException('El menú ya tiene información cargada');
-    }
-
-    const restaurantId = '11111111-1111-1111-1111-111111111111'; // fijo para demo
+    const restaurantId = '11111111-1111-1111-1111-111111111111';
 
     const categoriesData = [
       { name: 'Antipasti', display_order: 1 },
@@ -320,107 +314,308 @@ export class MenuService {
     const savedCategories: Record<string, MenuCategory> = {};
 
     for (const cat of categoriesData) {
-      const category = await this.menuCategoryRepository.save({
-        restaurant_id: restaurantId,
-        name: cat.name,
-        description: `Categoría ${cat.name}`,
-        display_order: cat.display_order,
-        is_active: true,
+      let category = await this.menuCategoryRepository.findOne({
+        where: {
+          restaurant_id: restaurantId,
+          name: cat.name,
+        },
       });
 
-      savedCategories[cat.name] = category;
+      if (category) {
+        category.description = `Categoría ${cat.name}`;
+        category.display_order = cat.display_order;
+        category.is_active = true;
+      } else {
+        category = this.menuCategoryRepository.create({
+          restaurant_id: restaurantId,
+          name: cat.name,
+          description: `Categoría ${cat.name}`,
+          display_order: cat.display_order,
+          is_active: true,
+        });
+      }
+
+      savedCategories[cat.name] =
+        await this.menuCategoryRepository.save(category);
     }
 
     const itemsData = [
+      // =========================
+      // ANTIPASTI
+      // =========================
       {
         name: 'Bruschetta',
         description: 'Pan tostado con tomate y albahaca.',
-        price: '18000',
+        price: '10',
         category: 'Antipasti',
         tags: 'entrada,italiano,bestseller',
         allergens: 'gluten',
         prep_time_minutes: 10,
-        image_url: undefined,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Bruschetta_nu7c04.png',
         is_available: true,
         status: MenuItemStatus.AVAILABLE,
         display_order: 1,
       },
       {
+        name: 'Caprese',
+        description:
+          'Tomate fresco, mozzarella y albahaca con aceite de oliva.',
+        price: '12',
+        category: 'Antipasti',
+        tags: 'entrada,italiano,vegetariano',
+        allergens: 'lacteos',
+        prep_time_minutes: 8,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Caprese_hoapi0.jpg',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 2,
+      },
+      {
+        name: 'Carpaccio di Manzo',
+        description: 'Láminas finas de res con parmesano y aceite de oliva.',
+        price: '12',
+        category: 'Antipasti',
+        tags: 'entrada,italiano,res',
+        allergens: 'lacteos',
+        prep_time_minutes: 12,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Carpaccio_di_manzo_uahj1m.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 3,
+      },
+
+      // =========================
+      // PRIMI PIATTI
+      // =========================
+      {
         name: 'Carbonara',
         description: 'Pasta cremosa con panceta y parmesano.',
-        price: '36000',
+        price: '16',
         category: 'Primi Piatti',
         tags: 'pasta,italiano,bestseller',
         allergens: 'gluten,lacteos',
         prep_time_minutes: 18,
-        image_url: undefined,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776280896/Pasta_Carbonara_f2t7hg.jpg',
         is_available: true,
         status: MenuItemStatus.AVAILABLE,
         display_order: 1,
       },
       {
+        name: 'Fettuccine Alfredo',
+        description: 'Pasta con salsa cremosa de queso parmesano.',
+        price: '14',
+        category: 'Primi Piatti',
+        tags: 'pasta,italiano,cremoso',
+        allergens: 'gluten,lacteos',
+        prep_time_minutes: 18,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Fettuccine_Alfredo_jlaed3.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 2,
+      },
+      {
+        name: 'Lasagna Bolognese',
+        description: 'Capas de pasta con carne, salsa de tomate y queso.',
+        price: '14',
+        category: 'Primi Piatti',
+        tags: 'pasta,italiano,carne',
+        allergens: 'gluten,lacteos',
+        prep_time_minutes: 25,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Lasagna_Bolognese_snkbi9.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 3,
+      },
+
+      // =========================
+      // PIZZE
+      // =========================
+      {
         name: 'Pizza Margherita',
         description: 'Pizza clásica con tomate, mozzarella y albahaca.',
-        price: '32000',
+        price: '12',
         category: 'Pizze',
         tags: 'pizza,vegetariano',
         allergens: 'gluten,lacteos',
         prep_time_minutes: 20,
-        image_url: undefined,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459102/Pizza_Margherita_pgop3d.jpg',
         is_available: true,
         status: MenuItemStatus.AVAILABLE,
         display_order: 1,
       },
       {
+        name: 'Pizza Pepperoni',
+        description: 'Pizza con salsa de tomate, pepperoni y mozzarella.',
+        price: '14',
+        category: 'Pizze',
+        tags: 'pizza,pepperoni,italiano',
+        allergens: 'gluten,lacteos',
+        prep_time_minutes: 20,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459102/Pizza_Pepperoni_cnezox.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 2,
+      },
+      {
+        name: 'Pizza Quattro Formaggi',
+        description: 'Pizza con mezcla de cuatro quesos italianos.',
+        price: '14',
+        category: 'Pizze',
+        tags: 'pizza,queso,vegetariano',
+        allergens: 'gluten,lacteos',
+        prep_time_minutes: 20,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459103/PIzza_Quattro_Formaggi_hrzjsl.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 3,
+      },
+
+      // =========================
+      // DOLCI
+      // =========================
+      {
         name: 'Tiramisú',
         description: 'Postre italiano con café y mascarpone.',
-        price: '16000',
+        price: '8',
         category: 'Dolci',
         tags: 'postre,cafe',
         allergens: 'lacteos,huevo,gluten',
         prep_time_minutes: 8,
-        image_url: undefined,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459103/Tiramis%C3%BA_dtt2ns.png',
         is_available: true,
         status: MenuItemStatus.AVAILABLE,
         display_order: 1,
       },
       {
+        name: 'Panna Cotta',
+        description: 'Postre suave de crema con salsa de frutos rojos.',
+        price: '10',
+        category: 'Dolci',
+        tags: 'postre,italiano,cremoso',
+        allergens: 'lacteos',
+        prep_time_minutes: 7,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Panna_Cotta_doastn.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 2,
+      },
+      {
+        name: 'Gelato Artesanal',
+        description: 'Helado italiano tradicional en sabores de la casa.',
+        price: '7',
+        category: 'Dolci',
+        tags: 'postre,helado,italiano',
+        allergens: 'lacteos',
+        prep_time_minutes: 5,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Gelato_Artesanal_pgxt0r.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 3,
+      },
+
+      // =========================
+      // BEVANDE
+      // =========================
+      {
         name: 'Limonada',
         description: 'Limonada fresca de la casa.',
-        price: '9000',
+        price: '5',
         category: 'Bevande',
         tags: 'bebida,refrescante',
         allergens: '',
         prep_time_minutes: 5,
-        image_url: undefined,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Limonada_fresca_de_la_casa_ksbblr.png',
         is_available: true,
         status: MenuItemStatus.AVAILABLE,
         display_order: 1,
       },
+      {
+        name: 'Espresso',
+        description: 'Café italiano fuerte y aromático.',
+        price: '4',
+        category: 'Bevande',
+        tags: 'bebida,cafe,italiano',
+        allergens: '',
+        prep_time_minutes: 4,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Espresso_pnp5ga.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 2,
+      },
+      {
+        name: 'Vino Tinto',
+        description: 'Copa de vino tinto seleccionada por la casa.',
+        price: '7',
+        category: 'Bevande',
+        tags: 'bebida,vino,italiano',
+        allergens: 'sulfitos',
+        prep_time_minutes: 3,
+        image_url:
+          'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459792/Vino_Tinto_yqcfrm.png',
+        is_available: true,
+        status: MenuItemStatus.AVAILABLE,
+        display_order: 3,
+      },
     ];
-
     for (const item of itemsData) {
-      await this.menuItemRepository.save({
-        restaurant_id: restaurantId,
-        category_id: savedCategories[item.category].id,
-        category: savedCategories[item.category],
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        image_url: item.image_url,
-        is_available: item.is_available,
-        allergens: item.allergens,
-        tags: item.tags,
-        prep_time_minutes: item.prep_time_minutes,
-        status: item.status,
-        display_order: item.display_order,
+      let menuItem = await this.menuItemRepository.findOne({
+        where: {
+          restaurant_id: restaurantId,
+          name: item.name,
+        },
       });
+
+      if (menuItem) {
+        menuItem.category_id = savedCategories[item.category].id;
+        menuItem.category = savedCategories[item.category];
+        menuItem.description = item.description;
+        menuItem.price = item.price;
+        menuItem.image_url = item.image_url;
+        menuItem.is_available = item.is_available;
+        menuItem.allergens = item.allergens;
+        menuItem.tags = item.tags;
+        menuItem.prep_time_minutes = item.prep_time_minutes;
+        menuItem.status = item.status;
+        menuItem.display_order = item.display_order;
+      } else {
+        menuItem = this.menuItemRepository.create({
+          restaurant_id: restaurantId,
+          category_id: savedCategories[item.category].id,
+          category: savedCategories[item.category],
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          image_url: item.image_url,
+          is_available: item.is_available,
+          allergens: item.allergens,
+          tags: item.tags,
+          prep_time_minutes: item.prep_time_minutes,
+          status: item.status,
+          display_order: item.display_order,
+        });
+      }
+
+      await this.menuItemRepository.save(menuItem);
     }
 
     return {
-      message: 'Seed Bella Vita creado correctamente',
-      categoriesCreated: Object.keys(savedCategories).length,
-      itemsCreated: itemsData.length,
+      message: 'Seed Bella Vita ejecutado correctamente',
+      categoriesProcessed: Object.keys(savedCategories).length,
+      itemsProcessed: itemsData.length,
     };
   }
 }
