@@ -79,6 +79,20 @@ export class User {
   })
   imgUrl!: string;
 
+ @Column({
+  type: 'varchar',
+  length: 50,
+  nullable: true,
+})
+  city!: string;
+
+  @Column({
+  type: 'varchar',
+  length: 50,
+  nullable: true,
+})
+  country!: string; 
+
   @CreateDateColumn()
   created_at!: Date;
 

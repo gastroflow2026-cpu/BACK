@@ -13,11 +13,10 @@ import {
   Validate,
 } from 'class-validator';
 import { MatchPassword } from '../../decorators/matchPassword';
-
 import { AuthProvider, UserRole } from '../../common/user.enums';
 import { OmitType, PartialType, PickType } from '@nestjs/mapped-types';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Url } from 'url';
+import { ApiHideProperty, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 
 export class CreateUserDto {
   @IsString({ message: 'Nombre debe ser un string' })
@@ -97,16 +96,37 @@ export class CreateUserDto {
   @IsEmpty()
   @IsEnum(AuthProvider)
   auth_provider!: AuthProvider;
+
+  @IsString()
+  @IsNotEmpty({ message: 'City no puede estar vacio' })
+  @MinLength(2)
+  @MaxLength(15)
+  @ApiProperty({
+    description: 'Ciudad del usuario',
+    example: 'Santiago',
+  })
+  city!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Country no puede estar vacio' })
+  @MinLength(2)
+  @MaxLength(15)
+  @ApiProperty({
+    description: 'País del usuario',
+    example: 'Chile',
+  })
+  country!: string;
 }
 
 export class UpdateUserDto extends PartialType(
-  OmitType(CreateUserDto, [
-    'password',
-    'confirmPassword',
-    'role',
-    'auth_provider',
-  ]),
-) {}
+  OmitType(CreateUserDto, ['password', 'confirmPassword', 'role', 'auth_provider']),
+) {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  imgUrl?: string;
+}
 
 export class LoginUserDto {
   @IsNotEmpty({ message: 'Email no puede ser vacio' })
@@ -141,4 +161,11 @@ export class LoginUserDto {
     example: 'Testpassword01!',
   })
   password!: string;
+
+}
+
+export class UpdateRoleDto {
+  @ApiProperty({ enum: UserRole })
+  @IsEnum(UserRole)
+  role!: UserRole;
 }
