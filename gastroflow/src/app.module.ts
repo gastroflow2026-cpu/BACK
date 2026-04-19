@@ -12,6 +12,7 @@ import { FileUploadModule } from './file-upload/file-upload.module';
 import { RestaurantModule } from './restaurants/restaurant.module';
 import { MenuModule } from './menu/menu.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { NotificationsModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     MenuModule,
     RestaurantModule,
     SubscriptionsModule,
+    NotificationsModule,
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },

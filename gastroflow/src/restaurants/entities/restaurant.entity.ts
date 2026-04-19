@@ -11,12 +11,17 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Subscription } from '../../subscriptions/entities/subscription.entity';
 //import { RestaurantTheme } from '../../restaurant-theme/entities/restaurant-theme.entity';
+import { Notification } from '../../notification/entities/notification.entity';
 @Entity({
   name: 'RESTAURANTS',
 })
 export class Restaurant {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  //RELACION CON NOTIFICATION
+  @OneToMany(() => Notification, (notification) => notification.restaurant)
+  notifications!: Notification[];
 
   @Column({
     type: 'varchar',
