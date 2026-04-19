@@ -11,6 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { RestaurantModule } from './restaurants/restaurant.module';
 import { MenuModule } from './menu/menu.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { NotificationsModule } from './notification/notification.module';
 
 @Module({
@@ -30,6 +31,7 @@ import { NotificationsModule } from './notification/notification.module';
     FileUploadModule,
     MenuModule,
     RestaurantModule,
+    SubscriptionsModule,
     NotificationsModule,
     JwtModule.register({
       global: true,

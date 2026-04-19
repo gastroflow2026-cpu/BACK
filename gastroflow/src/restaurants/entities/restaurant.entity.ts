@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Subscription } from '../../subscriptions/entities/subscription.entity';
 //import { RestaurantTheme } from '../../restaurant-theme/entities/restaurant-theme.entity';
 import { Notification } from '../../notification/entities/notification.entity';
 @Entity({
@@ -93,6 +94,9 @@ export class Restaurant {
 
   @OneToMany(() => User, (user) => user.restaurant)
   users!: User[];
+
+  @OneToMany(() => Subscription, (subscription) => subscription.restaurant)
+  subscriptions!: Subscription[];
 
   //@OneToOne(() => RestaurantTheme, (theme) => theme.restaurant)
   //theme!: RestaurantTheme;
