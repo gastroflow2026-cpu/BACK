@@ -301,13 +301,7 @@ export class MenuService {
   // =========================
 
   async seedMenu() {
-    const existingCategories = await this.menuCategoryRepository.count();
-
-    if (existingCategories > 0) {
-      throw new BadRequestException('El menú ya tiene información cargada');
-    }
-
-    const restaurantId = '11111111-1111-1111-1111-111111111111'; // fijo para demo
+    const restaurantId = '11111111-1111-1111-1111-111111111111';
 
     const categoriesData = [
       { name: 'Antipasti', display_order: 1 },
@@ -320,15 +314,29 @@ export class MenuService {
     const savedCategories: Record<string, MenuCategory> = {};
 
     for (const cat of categoriesData) {
-      const category = await this.menuCategoryRepository.save({
-        restaurant_id: restaurantId,
-        name: cat.name,
-        description: `Categoría ${cat.name}`,
-        display_order: cat.display_order,
-        is_active: true,
+      let category = await this.menuCategoryRepository.findOne({
+        where: {
+          restaurant_id: restaurantId,
+          name: cat.name,
+        },
       });
 
-      savedCategories[cat.name] = category;
+      if (category) {
+        category.description = `Categoría ${cat.name}`;
+        category.display_order = cat.display_order;
+        category.is_active = true;
+      } else {
+        category = this.menuCategoryRepository.create({
+          restaurant_id: restaurantId,
+          name: cat.name,
+          description: `Categoría ${cat.name}`,
+          display_order: cat.display_order,
+          is_active: true,
+        });
+      }
+
+      savedCategories[cat.name] =
+        await this.menuCategoryRepository.save(category);
     }
 
     const itemsData = [
@@ -400,27 +408,50 @@ export class MenuService {
     ];
 
     for (const item of itemsData) {
-      await this.menuItemRepository.save({
-        restaurant_id: restaurantId,
-        category_id: savedCategories[item.category].id,
-        category: savedCategories[item.category],
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        image_url: item.image_url,
-        is_available: item.is_available,
-        allergens: item.allergens,
-        tags: item.tags,
-        prep_time_minutes: item.prep_time_minutes,
-        status: item.status,
-        display_order: item.display_order,
+      let menuItem = await this.menuItemRepository.findOne({
+        where: {
+          restaurant_id: restaurantId,
+          name: item.name,
+        },
       });
+
+      if (menuItem) {
+        menuItem.category_id = savedCategories[item.category].id;
+        menuItem.category = savedCategories[item.category];
+        menuItem.description = item.description;
+        menuItem.price = item.price;
+        menuItem.image_url = item.image_url;
+        menuItem.is_available = item.is_available;
+        menuItem.allergens = item.allergens;
+        menuItem.tags = item.tags;
+        menuItem.prep_time_minutes = item.prep_time_minutes;
+        menuItem.status = item.status;
+        menuItem.display_order = item.display_order;
+      } else {
+        menuItem = this.menuItemRepository.create({
+          restaurant_id: restaurantId,
+          category_id: savedCategories[item.category].id,
+          category: savedCategories[item.category],
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          image_url: item.image_url,
+          is_available: item.is_available,
+          allergens: item.allergens,
+          tags: item.tags,
+          prep_time_minutes: item.prep_time_minutes,
+          status: item.status,
+          display_order: item.display_order,
+        });
+      }
+
+      await this.menuItemRepository.save(menuItem);
     }
 
     return {
-      message: 'Seed Bella Vita creado correctamente',
-      categoriesCreated: Object.keys(savedCategories).length,
-      itemsCreated: itemsData.length,
+      message: 'Seed Bella Vita ejecutado correctamente',
+      categoriesProcessed: Object.keys(savedCategories).length,
+      itemsProcessed: itemsData.length,
     };
   }
 }
