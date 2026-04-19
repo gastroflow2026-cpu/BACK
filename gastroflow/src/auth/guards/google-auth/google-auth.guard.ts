@@ -1,5 +1,6 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { environment } from '../../../config/enviroment';
 
 @Injectable()
 export class GoogleAuthGuard extends AuthGuard('google') {
@@ -10,8 +11,8 @@ export class GoogleAuthGuard extends AuthGuard('google') {
     const resolvedUser = user ?? request.user;
     const isRegisterFlow = request.query?.state === 'register';
     const errorBaseUrl = isRegisterFlow
-      ? 'http://localhost:3001/register'
-      : 'http://localhost:3001/login';
+      ? `${environment.FRONTEND_URL}/register`
+      : `${environment.FRONTEND_URL}/login`;
 
     console.log('[GoogleAuthGuard]', {
       method: request.method,
