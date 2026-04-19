@@ -4,6 +4,7 @@ import { RestaurantTables } from "./entities/restaurant_table.entity";
 import { Repository } from "typeorm";
 import { RestaurantTableStatus } from "../common/restaurant_table.enum";
 import { Restaurant } from "../restaurants/entities/restaurant.entity";
+import { CreateTableDto } from "./dto/restaurant_table.dto";
 
 export const tablesSeed = [
   { table_number: 1, capacity: 2, zone: 'Interior' },
@@ -78,5 +79,33 @@ async seedTables(restaurantId: string) {
     }
 
 
+  async createNewTable(restaurantId: string, newTableData: CreateTableDto) {
+    const restaurant = await this.restaurantsRepository.findOne({
+        where: { id: restaurantId },
+    });
+    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
 
+    const newTable = this.restaurantsTablesRepository.create({
+        ...newTableData,
+        restaurant,
+    });
+
+    return this.restaurantsTablesRepository.save(newTable);
+  }
+
+  async deactivateTable(restaurantId: string, tableId: string) {
+    const table = await this.restaurantsTablesRepository.findOne({
+        where: {
+            id: tableId,
+            restaurant: { id: restaurantId },
+        },
+    });
+
+    if (!table) throw new NotFoundException('Mesa no encontrada');
+    if (!table.is_active) throw new BadRequestException('La mesa ya está desactivada');
+
+    table.is_active = false;
+    return this.restaurantsTablesRepository.save(table);
+  
+  }
 }
