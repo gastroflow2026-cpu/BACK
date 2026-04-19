@@ -5,11 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { AuthProvider, UserRole } from '../../common/user.enums';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
+import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity({
   name: 'USERS',
@@ -24,6 +26,9 @@ export class User {
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.users)
   @JoinColumn({ name: 'restaurant_id' })
   restaurant!: Restaurant;
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications!: Notification[];
 
   @Column({
     type: 'varchar',
