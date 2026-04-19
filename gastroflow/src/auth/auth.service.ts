@@ -16,7 +16,7 @@ import { CreateGoogleUserDto } from '../users/dto/CreateGoogleUserDto';
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly jwtService: JwtService, // para uso del SIGNIN
+    private readonly jwtService: JwtService, 
   ) {}
 
   async signUp(newUserData: CreateUserDto) {
@@ -44,7 +44,7 @@ export class AuthService {
     if (!dbUser) throw new NotFoundException('Email o passwords incorrectos');
     if (dbUser.auth_provider === AuthProvider.GOOGLE_AUTH) {
       throw new BadRequestException(
-        'Este correo ya está registrado',
+        'Este correo fue registrado con Google. Iniciá sesión con Google',
       );
     }
 
@@ -106,16 +106,29 @@ export class AuthService {
     };
   }
 
-  async validateGoogleUser(googleUser: CreateGoogleUserDto): Promise<User> {
-    const existingUser = await this.usersRepository.getUserByEmail(
-      googleUser.email,
-    );
+  async validateGoogleUser(
+    googleUser: CreateGoogleUserDto,
+    intent: 'login' | 'register' = 'login',
+  ): Promise<User> {
+    const normalizedEmail = googleUser.email.trim().toLowerCase();
+
+    const existingUser =
+      await this.usersRepository.getUserByEmail(normalizedEmail);
+
+    console.log('[AuthService.validateGoogleUser]', {
+      normalizedEmail,
+      intent,
+      found: !!existingUser,
+      auth_provider: existingUser?.auth_provider,
+    });
 
     if (existingUser) {
       if (existingUser.auth_provider !== AuthProvider.GOOGLE_AUTH) {
-        throw new BadRequestException(
-          'Este correo ya está registrado',
-        );
+        throw new BadRequestException('provider_conflict');
+      }
+
+      if (intent === 'register') {
+        throw new BadRequestException('google_account_exists');
       }
 
       return existingUser;
@@ -123,6 +136,7 @@ export class AuthService {
 
     await this.usersRepository.createUser({
       ...googleUser,
+      email: normalizedEmail,
       auth_provider: AuthProvider.GOOGLE_AUTH,
     });
 
@@ -175,4 +189,3 @@ export class AuthService {
     return roles;
   }
 }
-
