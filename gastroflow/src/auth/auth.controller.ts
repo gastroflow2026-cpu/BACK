@@ -14,6 +14,7 @@ import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GoogleLoginGuard } from './guards/google-auth/google.login.guard';
 import { GoogleRegisterGuard } from './guards/google-auth/google.register.guard';
+import { environment } from '../config/enviroment';
 
 @Controller('auth')
 export class AuthController {
@@ -62,8 +63,8 @@ export class AuthController {
   async googleCallback(@Req() req, @Res() res) {
     const isRegisterFlow = req.query?.state === 'register';
     const errorBaseUrl = isRegisterFlow
-      ? 'http://localhost:3001/register'
-      : 'http://localhost:3001/login';
+      ? `${environment.FRONTEND_URL}/register`
+      : `${environment.FRONTEND_URL}/login`;
     if (res.headersSent) {
       return;
     }
@@ -89,7 +90,7 @@ export class AuthController {
     }
 
     return res.redirect(
-      `http://localhost:3001?token=${encodeURIComponent(response.token)}`,
+      `${environment.FRONTEND_URL}?token=${encodeURIComponent(response.token)}`,
     );
   }
 
