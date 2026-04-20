@@ -19,6 +19,11 @@ export class UsersRepository {
     const savedUser = await this.ormUsersRepository.save(user);
     return savedUser.id;
     }
+
+    async createUserEntity(newUserData: Partial<User>): Promise<User> {
+        const user = this.ormUsersRepository.create(newUserData);
+        return await this.ormUsersRepository.save(user);
+    }
     
     async getUserByEmail(email: string): Promise<User | null> {
         return await this.ormUsersRepository.findOneBy({ email: email });
