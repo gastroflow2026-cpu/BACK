@@ -6,7 +6,7 @@ import { RolesGuard } from '../auth/guards/Role.guard';
 import { Role } from '../decorators/roles.decorators';
 import { AuthGuard } from '../auth/guards/Auth.guard';
 import { UserRole } from '../common/user.enums';
-import { UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
+import { ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
 
 
 @ApiTags('users')
@@ -104,8 +104,17 @@ export class UsersController {
   @UseGuards(AuthGuard, RolesGuard)
   @Role(UserRole.SUPER_ADMIN, UserRole.REST_ADMIN)
   @ApiOperation({ summary: 'Desactivar usuario' })
-  desactivateUser(@Param('id', ParseUUIDPipe) id: string) {
+  deactivateUser(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.deactivateUser(id);
+  }
+
+  @ApiBearerAuth()
+  @Patch(':id/resetpassword') 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(UserRole.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Resetear contraseña de usuario por super_admin' })
+  async resetPassword(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ResetPasswordDto) {
+    return this.usersService.resetPassword(id, dto);
   }
 
   

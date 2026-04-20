@@ -49,7 +49,8 @@ export class Reservation {
 
   @Column({
     type: 'int',
-    nullable: false
+    nullable: false,
+    default: 0
   })
   customer_phone!: number;
 

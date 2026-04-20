@@ -126,6 +126,7 @@ export class UpdateUserDto extends PartialType(
   @IsString()
   @MaxLength(100)
   imgUrl?: string;
+
 }
 
 export class LoginUserDto {
@@ -169,3 +170,26 @@ export class UpdateRoleDto {
   @IsEnum(UserRole)
   role!: UserRole;
 }
+
+export class ResetPasswordDto {
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(15)
+  @IsStrongPassword({
+    minLowercase: 1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSymbols: 1,
+  })
+  @ApiProperty({ example: 'NewPassword01!' })
+  newPassword!: string;
+
+  @IsNotEmpty()
+  @Validate(MatchPassword, ['newPassword'])
+  @ApiProperty({ example: 'NewPassword01!' })
+  confirmNewPassword!: string;
+}
+
+

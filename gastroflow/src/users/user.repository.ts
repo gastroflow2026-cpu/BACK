@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { UpdateUserDto } from "./dto/user.dto";
+import { ResetPasswordDto, UpdateUserDto } from "./dto/user.dto";
+import * as bcrypt from 'bcrypt';
 import { UserRole } from "../common/user.enums";
 
 @Injectable()
@@ -73,5 +74,21 @@ export class UsersRepository {
         await this.ormUsersRepository.save(user);
 
         return { message: `Usuario con id ${id} desactivado correctamente` };
+    }
+
+    async resetPassword(id: string, dto: ResetPasswordDto): Promise<{ message: string }> {
+        const { newPassword } = dto;
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        const foundUser = await this.ormUsersRepository.findOneBy({ id });
+
+        if (!foundUser) throw new NotFoundException(`No existe usuario con id ${id}`);
+
+        foundUser.password_hash = hashedPassword;
+
+        const savedUser = await this.ormUsersRepository.save(foundUser);
+        
+        return { message: `Contraseña modificada correctamente` };
     }
 }
