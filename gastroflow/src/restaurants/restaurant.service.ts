@@ -1,6 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Restaurant } from './entities/restaurant.entity';
 import { UpdateRestaurantDto } from './dto/restaurant.dto';
 
@@ -54,23 +58,15 @@ export class RestaurantService {
   ) {}
 
   
-
-  //* Obtener restaurante principal (single-tenant por ahora)
-  async getProfile(): Promise<Restaurant> {
-    const restaurant = await this.restaurantRepository.findOne({
-      where: { is_active: true },
-    });
-
-    if (!restaurant) {
-      throw new NotFoundException('No existe restaurante configurado');
-    }
-
+  //* Obtener restaurante del usuario autenticado
+  async getProfile(restaurantId?: string): Promise<Restaurant> {
+    const restaurant = await this.findRestaurantById(restaurantId);
     return restaurant;
   }
 
   //* Endpoint público para landing
   async getPublicRestaurant() {
-    const restaurant = await this.restaurantRepository.findOne({
+    const restaurant = await this.restaurantRepository.find({
       where: { is_active: true },
       select: {
         id: true,
@@ -86,20 +82,64 @@ export class RestaurantService {
       },
     });
 
-    if (!restaurant) {
+    if (!restaurant || restaurant.length === 0) {
       throw new NotFoundException('No existe restaurante público configurado');
     }
 
     return restaurant;
   }
 
+  //* Endpoint publico para listar restaurantes visibles
+  async getPublicRestaurants() {
+    return await this.restaurantRepository.find({
+      where: { is_active: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        phone: true,
+        email: true,
+        address: true,
+        city: true,
+        country: true,
+        logo_url: true,
+        description: true,
+        is_active: true,
+      },
+      order: {
+        created_at: 'DESC',
+      },
+    });
+  }
+
   //* Actualizar perfil del restaurante
-  async updateProfile(dto: UpdateRestaurantDto): Promise<Restaurant> {
-    const restaurant = await this.getProfile();
+  async updateProfile(
+    restaurantId: string | undefined,
+    dto: UpdateRestaurantDto,
+  ): Promise<Restaurant> {
+    const restaurant = await this.findRestaurantById(restaurantId);
 
     Object.assign(restaurant, dto);
 
     return await this.restaurantRepository.save(restaurant);
+  }
+
+  private async findRestaurantById(restaurantId?: string): Promise<Restaurant> {
+    if (!restaurantId) {
+      throw new BadRequestException(
+        'El usuario autenticado no tiene un restaurante vinculado',
+      );
+    }
+
+    const restaurant = await this.restaurantRepository.findOne({
+      where: { id: restaurantId },
+    });
+
+    if (!restaurant) {
+      throw new NotFoundException('No existe restaurante configurado');
+    }
+
+    return restaurant;
   }
 
   // restaurants.seed.ts
