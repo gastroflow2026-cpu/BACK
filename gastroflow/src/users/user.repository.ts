@@ -26,10 +26,16 @@ export class UsersRepository {
 
         return savedUser.id;
     }
+
+    async createUserEntity(newUserData: Partial<User>): Promise<User> {
+        const user = this.ormUsersRepository.create(newUserData);
+        return await this.ormUsersRepository.save(user);
+    }
     
     async getUserByEmail(email: string): Promise<User | null> {
         return await this.ormUsersRepository.findOneBy({ email });
     }
+<<<<<<< HEAD
 
     async getUserById(id: string): Promise<Omit<User, 'password_hash'>> {
         const user = await this.ormUsersRepository.findOne({ where: { id } });
@@ -87,3 +93,6 @@ export class UsersRepository {
     }
 
 }
+=======
+}
+>>>>>>> dev
