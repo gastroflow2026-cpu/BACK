@@ -3,10 +3,14 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { environment } from './config/enviroment';
 import 'reflect-metadata';
+import * as express from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
+  const app = await NestFactory.create(AppModule, { rawBody: true, bodyParser: false });
+  app.use('/reservations-payment/webhook', express.raw({ type: 'application/json' }));
+  app.use(express.json()); 
+  app.use(express.urlencoded({ extended: true }));
+  
   app.enableCors({
     origin: environment.FRONTEND_URL,
   });

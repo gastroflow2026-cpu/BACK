@@ -43,7 +43,8 @@ export class ReservationsController {
         @Body() reservationData: newReservation, 
         @Req() req) {
         const userId = req.user.id
-        return await this.reservationsService.createNewReservation(restaurantId, reservationData, userId)
+        const url =  await this.reservationsService.createNewReservation(restaurantId, reservationData, userId)
+        return {url}
     } 
 
     

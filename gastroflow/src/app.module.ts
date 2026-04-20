@@ -13,6 +13,7 @@ import { RestaurantModule } from './restaurants/restaurant.module';
 import { MenuModule } from './menu/menu.module';
 import { MailModule } from './mail/mail.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { ReservationsPaymentModule } from './reservations-payment/reservations-payment.module';
 import { RestaurantTablesModule } from './restaurant_tables/restaurant_tables.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { NotificationsModule } from './notification/notification.module';

@@ -8,10 +8,12 @@ import { ReservationsRepository } from './reservations.repository';
 import { RestaurantTablesRepository } from '../restaurant_tables/restaurant_tables.repository';
 import { RestaurantTables } from '../restaurant_tables/entities/restaurant_table.entity';
 import { User } from '../users/entities/user.entity';
+import { ReservationsPaymentService } from '../reservations-payment/reservations-payment.service';
+import { ReservationPayment } from '../reservations-payment/entities/reservations-payment.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Reservation, Restaurant, RestaurantTables, User])],
+    imports: [TypeOrmModule.forFeature([Reservation, Restaurant, RestaurantTables, User, ReservationPayment])],
     controllers: [ReservationsController],
-    providers: [ReservationsService, ReservationsRepository, RestaurantTablesRepository]
+    providers: [ReservationsService, ReservationsRepository, RestaurantTablesRepository, ReservationsPaymentService]
 })
 export class ReservationsModule {}
