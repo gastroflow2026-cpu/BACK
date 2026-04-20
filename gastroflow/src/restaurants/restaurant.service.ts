@@ -70,7 +70,7 @@ export class RestaurantService {
 
   //* Endpoint público para landing
   async getPublicRestaurant() {
-    const restaurant = await this.restaurantRepository.findOne({
+    const restaurant = await this.restaurantRepository.find({
       where: { is_active: true },
       select: {
         id: true,
@@ -86,7 +86,7 @@ export class RestaurantService {
       },
     });
 
-    if (!restaurant) {
+    if (!restaurant || restaurant.length === 0) {
       throw new NotFoundException('No existe restaurante público configurado');
     }
 
