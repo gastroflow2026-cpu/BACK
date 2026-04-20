@@ -12,6 +12,10 @@ import { FileUploadModule } from './file-upload/file-upload.module';
 import { RestaurantModule } from './restaurants/restaurant.module';
 import { MenuModule } from './menu/menu.module';
 import { MailModule } from './mail/mail.module';
+import { ReservationsModule } from './reservations/reservations.module';
+import { RestaurantTablesModule } from './restaurant_tables/restaurant_tables.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { NotificationsModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -31,6 +35,10 @@ import { MailModule } from './mail/mail.module';
     MenuModule,
     RestaurantModule,
     MailModule,
+    RestaurantTablesModule,
+    ReservationsModule,
+    SubscriptionsModule,
+    NotificationsModule,
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },

@@ -5,11 +5,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { AuthProvider, UserRole } from '../../common/user.enums';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
+import { Reservation } from '../../reservations/entities/reservation.entity';
+import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity({
   name: 'USERS',
@@ -24,6 +27,9 @@ export class User {
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.users)
   @JoinColumn({ name: 'restaurant_id' })
   restaurant!: Restaurant;
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications!: Notification[];
 
   @Column({
     type: 'varchar',
@@ -78,6 +84,9 @@ export class User {
     nullable: true,
   })
   imgUrl!: string;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  reservations!: Reservation[];
 
   @CreateDateColumn()
   created_at!: Date;
