@@ -7,6 +7,7 @@ import { Role } from '../decorators/roles.decorators';
 import { AuthGuard } from '../auth/guards/Auth.guard';
 import { UserRole } from '../common/user.enums';
 import { ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
+import { GetUser } from '../decorators/get-user.decorator';
 
 
 @ApiTags('users')
@@ -14,6 +15,14 @@ import { ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+
+  @ApiBearerAuth()
+  @Patch('updatepassword') 
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Actualizar contraseña de usuario' })
+  async updatePassword(@GetUser('id') userId: string, @Body() dto: ResetPasswordDto) {
+    return this.usersService.resetPassword(userId, dto);
+  }
 
   @Get()
   @ApiBearerAuth()

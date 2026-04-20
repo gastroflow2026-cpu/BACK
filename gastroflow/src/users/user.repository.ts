@@ -78,17 +78,12 @@ export class UsersRepository {
 
     async resetPassword(id: string, dto: ResetPasswordDto): Promise<{ message: string }> {
         const { newPassword } = dto;
-
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-
         const foundUser = await this.ormUsersRepository.findOneBy({ id });
-
         if (!foundUser) throw new NotFoundException(`No existe usuario con id ${id}`);
-
         foundUser.password_hash = hashedPassword;
-
         const savedUser = await this.ormUsersRepository.save(foundUser);
-        
         return { message: `Contraseña modificada correctamente` };
     }
+
 }
