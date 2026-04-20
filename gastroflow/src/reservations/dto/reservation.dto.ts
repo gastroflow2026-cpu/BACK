@@ -48,9 +48,4 @@ export class newReservation {
   @MaxLength(255)
   notes!: string;
 
-  @ApiPropertyOptional({ example: 500.00 })
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  @IsOptional()
-  deposit_amount!: number;
 }

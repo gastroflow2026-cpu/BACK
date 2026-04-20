@@ -13,4 +13,7 @@ export const environment = {
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 
   JWT_SECRET: process.env.JWT_SECRET,
+
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY
 };

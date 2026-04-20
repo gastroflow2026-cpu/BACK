@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, ParseUUIDPipe } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, ParseUUIDPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Reservation } from "./entities/reservation.entity";
 import { LessThan, MoreThan, Repository } from "typeorm";
@@ -9,6 +9,8 @@ import { RestaurantTablesRepository } from "../restaurant_tables/restaurant_tabl
 import { RestaurantTableStatus } from "../common/restaurant_table.enum";
 import { RestaurantTables } from "../restaurant_tables/entities/restaurant_table.entity";
 import { User } from "../users/entities/user.entity";
+import { ExceptionsHandler } from "@nestjs/core/exceptions/exceptions-handler";
+import { ReservationsPaymentService } from "../reservations-payment/reservations-payment.service";
 
 @Injectable()
 
@@ -18,7 +20,8 @@ export class ReservationsRepository{
         @InjectRepository(Restaurant) private restaurantsRepository: Repository<Restaurant>,
         @InjectRepository(RestaurantTables) private restaurantTablesRepository: Repository<RestaurantTables>,
         @InjectRepository(User) private userRepository: Repository<User>,
-        private readonly restaurantsTableRepository: RestaurantTablesRepository
+        private readonly restaurantsTableRepository: RestaurantTablesRepository,
+        private readonly reservationsPaymentService: ReservationsPaymentService
     ) {}
 
     async AllReservations(restaurantId: string){
@@ -69,7 +72,7 @@ export class ReservationsRepository{
     
     const createReservation = this.reservationsRepository.create({
         ...reservationData,
-        status: ReservationStatus.CONFIRMED,
+        status: ReservationStatus.PENDING,
         restaurant,
         table,
         user,
@@ -77,10 +80,18 @@ export class ReservationsRepository{
         end_time: new Date(new Date(start_time).getTime() + (2 * 60 + 15) * 60 * 1000), // +2hs 15min
     });
 
-    await this.restaurantsTableRepository.updateStatus(restaurantId, reservationData.table_id, RestaurantTableStatus.RESERVED)
+    let savedReservation;
     
-    const savedReservation = await this.reservationsRepository.save(createReservation);
-    return savedReservation;
+    try {
+        savedReservation = await this.reservationsRepository.save(createReservation);
+    } catch (error) {
+        throw new InternalServerErrorException('Error al guardar la reserva');
+    }
+    
+    const reservationPayment = await this.reservationsPaymentService.stripeCheckout(savedReservation.id)
+
+    return reservationPayment.url;
+
 }
 
 
