@@ -1,8 +1,19 @@
-import { IsString, IsEmail, IsInt, IsNumber, IsDateString, IsNotEmpty, IsOptional, Min, Max, MaxLength, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsInt,
+  IsNumber,
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  Min,
+  Max,
+  MaxLength,
+  IsUUID,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class newReservation {
-
   @ApiProperty({ example: 'uuid-de-la-mesa' })
   @IsUUID()
   @IsNotEmpty()
@@ -23,7 +34,7 @@ export class newReservation {
   @IsInt()
   @Min(1000000)
   @Max(99999999999)
-  customer_phone!: number;
+  customer_phone!: string;
 
   @ApiProperty({ example: '2025-12-31' })
   @IsDateString()
@@ -48,7 +59,7 @@ export class newReservation {
   @MaxLength(255)
   notes!: string;
 
-  @ApiPropertyOptional({ example: 500.00 })
+  @ApiPropertyOptional({ example: 500.0 })
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   @IsOptional()

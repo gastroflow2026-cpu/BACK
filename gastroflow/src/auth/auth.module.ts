@@ -12,6 +12,7 @@ import { UsersRepository } from '../users/user.repository';
 import { GoogleLoginGuard } from './guards/google-auth/google.login.guard';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { GoogleRegisterGuard } from './guards/google-auth/google.register.guard';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { GoogleRegisterGuard } from './guards/google-auth/google.register.guard'
     TypeOrmModule.forFeature([User]),
     ConfigModule.forFeature(googleOauthConfig),
     UsersModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -32,4 +34,3 @@ import { GoogleRegisterGuard } from './guards/google-auth/google.register.guard'
   exports: [AuthService, UsersRepository],
 })
 export class AuthModule {}
-
