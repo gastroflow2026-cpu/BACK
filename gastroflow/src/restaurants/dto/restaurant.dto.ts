@@ -2,35 +2,38 @@ import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEmail,
+  IsNumber,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateRestaurantDto {
-  @ApiProperty({ example: 'Restaurante La Bella Vita' })
+  @ApiProperty({ example: 'La Parrilla del Sol' })
   @IsString()
   @MaxLength(100)
   name!: string;
 
-  @ApiPropertyOptional({ example: 'Bella Vita' })
+  @ApiPropertyOptional({ example: 'la-parrilla-del-sol' })
   @IsOptional()
   @IsString()
   @MaxLength(150)
   slug?: string;
 
-  @ApiPropertyOptional({ example: '+57 3001234567' })
+  @ApiPropertyOptional({ example: '+54 11 8888-0000' })
   @IsOptional()
   @IsString()
   @MaxLength(20)
   phone?: string;
 
-  @ApiPropertyOptional({ example: 'contacto@bellavita' })
+  @ApiPropertyOptional({ example: 'contacto@laparrilladelsol.com' })
   @IsOptional()
   @IsEmail()
   email?: string;
 
-  @ApiPropertyOptional({ example: 'Calle 123 #45-67' })
+  @ApiPropertyOptional({ example: 'Belgrano, CABA' })
   @IsOptional()
   @IsString()
   @MaxLength(150)
@@ -48,15 +51,33 @@ export class CreateRestaurantDto {
   @MaxLength(80)
   country?: string;
 
-  @ApiPropertyOptional({ example: 'https://cdn/logo.png' })
-  @IsOptional()
-  @IsString()
-  logo_url?: string;
-
-  @ApiPropertyOptional({ example: 'Restaurante gourmet' })
+  @ApiPropertyOptional({ example: 'El auténtico asado criollo.' })
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiPropertyOptional({ example: 'Parrilla' })
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @ApiPropertyOptional({ example: 4.7 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(9.99)
+  rating?: number;
+
+  @ApiPropertyOptional({ example: 'https://cdn/image.png' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  image_url?: string;
+
+  @ApiPropertyOptional({ example: 'Selección de cortes premium...' })
+  @IsOptional()
+  @IsString()
+  about?: string;
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()
