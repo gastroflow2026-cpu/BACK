@@ -11,8 +11,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { RestaurantModule } from './restaurants/restaurant.module';
 import { MenuModule } from './menu/menu.module';
-import { RestaurantTablesModule } from './restaurant_tables/restaurant_tables.module';
+import { MailModule } from './mail/mail.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { ReservationsPaymentModule } from './reservations-payment/reservations-payment.module';
+import { RestaurantTablesModule } from './restaurant_tables/restaurant_tables.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { NotificationsModule } from './notification/notification.module';
 
@@ -33,6 +35,7 @@ import { NotificationsModule } from './notification/notification.module';
     FileUploadModule,
     MenuModule,
     RestaurantModule,
+    MailModule,
     RestaurantTablesModule,
     ReservationsModule,
     SubscriptionsModule,

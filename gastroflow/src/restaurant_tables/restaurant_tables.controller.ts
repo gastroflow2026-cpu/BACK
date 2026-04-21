@@ -14,8 +14,7 @@ export class RestaurantTablesController {
 
     constructor(private readonly restaurantTablesService: RestaurantTablesService){}
 
-    @UseGuards(AuthGuard, RolesGuard)
-    @Role(UserRole.REST_ADMIN)
+
     @ApiOperation({ summary: 'Obtener todas las mesas de un restaurante' })
     @ApiParam({ name: 'restaurantId', type: 'string', format: 'uuid' })
     @ApiResponse({ status: 200, description: 'Mesas obtenidas correctamente' })
