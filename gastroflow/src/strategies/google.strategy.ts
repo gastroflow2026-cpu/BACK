@@ -56,7 +56,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     try {
       const intent = req.query?.state === 'register' ? 'register' : 'login';
 
-      const user = await this.authService.validateGoogleUser(
+      const { user, isNewUser } = await this.authService.validateGoogleUser(
         {
           email,
           first_name: firstName.slice(0, 20),
@@ -70,9 +70,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
         id: user?.id,
         email: user?.email,
         auth_provider: user?.auth_provider,
+        isNewUser,
       });
 
-      return user;
+      return {
+        ...user,
+        isNewGoogleUser: isNewUser,
+      };
     } catch (error) {
       const authError =
         error instanceof Error ? error : new Error('Unknown Google auth error');
