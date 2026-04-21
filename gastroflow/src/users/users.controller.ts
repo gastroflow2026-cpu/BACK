@@ -6,7 +6,7 @@ import { RolesGuard } from '../auth/guards/Role.guard';
 import { Role } from '../decorators/roles.decorators';
 import { AuthGuard } from '../auth/guards/Auth.guard';
 import { UserRole } from '../common/user.enums';
-import { ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
+import { CreateEmployeeDto, ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
 import { GetUser } from '../decorators/get-user.decorator';
 
 
@@ -126,5 +126,11 @@ export class UsersController {
     return this.usersService.resetPassword(id, dto);
   }
 
-  
+  @Post('employees')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(UserRole.REST_ADMIN)
+  createEmployee(@Body() dto: CreateEmployeeDto) {
+    return this.usersService.createEmployee(dto);
+  }
+
 }

@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UsersRepository } from './user.repository';
-import { ResetPasswordDto, UpdateUserDto } from './dto/user.dto';
+import { CreateEmployeeDto, ResetPasswordDto, UpdateUserDto } from './dto/user.dto';
 import { UserRole } from '../common/user.enums';
+import * as bcrypt from 'bcrypt';
 
 
 @Injectable()
@@ -38,5 +39,23 @@ export class UsersService {
         return this.userRepository.resetPassword(id, dto)
 
     }
+
+    async createEmployee(dto: CreateEmployeeDto): Promise<{ id: string }> {
+    const existing = await this.userRepository.getUserByEmail(dto.email);
+    if (existing) {
+      throw new ConflictException(`Ya existe un usuario con el email ${dto.email}`);
+    }
+
+    const password_hash = await bcrypt.hash(dto.password, 10);
+    const id = await this.userRepository.createUser({
+      name: dto.name,
+      email: dto.email,
+      password_hash,
+      role: dto.role,
+      restaurant_id: dto.restaurant_id,
+    });
+
+    return { id };
+  }
 
 }
