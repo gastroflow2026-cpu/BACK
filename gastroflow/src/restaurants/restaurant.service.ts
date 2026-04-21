@@ -152,7 +152,6 @@ export class RestaurantService {
   //* Endpoint publico para listar restaurantes visibles
   async getPublicRestaurants() {
     return await this.restaurantRepository.find({
-      where: { is_active: true },
       select: {
         id: true,
         name: true,
