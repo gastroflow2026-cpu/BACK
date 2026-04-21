@@ -5,6 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,6 +13,7 @@ import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { RestaurantTables } from '../../restaurant_tables/entities/restaurant_table.entity';
 import { User } from '../../users/entities/user.entity';
 import { ReservationStatus } from '../../common/reservation.enum';
+import { ReservationPayment } from '../../reservations-payment/entities/reservations-payment.entity';
 
 @Entity({
   name: 'RESERVATIONS',
@@ -32,6 +34,9 @@ export class Reservation {
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
+  @OneToOne(() => ReservationPayment, (payment) => payment.reservation)
+  payment!: ReservationPayment;
+
   @Column({
     type: 'varchar',
     length: 50,
@@ -48,8 +53,9 @@ export class Reservation {
   customer_email!: string;
 
   @Column({
-    type: 'varchar',
     nullable: true,
+    type: 'bigint',
+    default: 0,
   })
   customer_phone!: string;
 

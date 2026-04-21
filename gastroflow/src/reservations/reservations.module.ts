@@ -9,10 +9,19 @@ import { RestaurantTablesRepository } from '../restaurant_tables/restaurant_tabl
 import { RestaurantTables } from '../restaurant_tables/entities/restaurant_table.entity';
 import { User } from '../users/entities/user.entity';
 import { MailModule } from '../mail/mail.module';
+import { ReservationsPaymentService } from '../reservations-payment/reservations-payment.service';
+import { ReservationPayment } from '../reservations-payment/entities/reservations-payment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Reservation, Restaurant, RestaurantTables, User]),
+    TypeOrmModule.forFeature([
+      Reservation,
+      Restaurant,
+      RestaurantTables,
+      User,
+      User,
+      ReservationPayment,
+    ]),
     MailModule,
   ],
   controllers: [ReservationsController],
@@ -20,6 +29,7 @@ import { MailModule } from '../mail/mail.module';
     ReservationsService,
     ReservationsRepository,
     RestaurantTablesRepository,
+    ReservationsPaymentService,
   ],
 })
 export class ReservationsModule {}

@@ -85,6 +85,20 @@ export class User {
   })
   imgUrl!: string;
 
+ @Column({
+  type: 'varchar',
+  length: 50,
+  nullable: true,
+})
+  city!: string;
+
+  @Column({
+  type: 'varchar',
+  length: 50,
+  nullable: true,
+})
+  country!: string; 
+  
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservations!: Reservation[];
 
