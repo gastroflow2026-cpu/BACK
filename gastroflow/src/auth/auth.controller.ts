@@ -77,6 +77,7 @@ export class AuthController {
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
     const isRegisterFlow = req.query?.state === 'register';
+    const isNewGoogleUser = Boolean(req.user?.isNewGoogleUser);
     const errorBaseUrl = isRegisterFlow
       ? `${environment.FRONTEND_URL}/register`
       : `${environment.FRONTEND_URL}/login`;
@@ -90,6 +91,12 @@ export class AuthController {
       }
 
       return res.redirect(`${errorBaseUrl}?error=google_auth_failed`);
+    }
+
+    if (isRegisterFlow && isNewGoogleUser) {
+      return res.redirect(
+        `${environment.FRONTEND_URL}/login?registered=google_success`,
+      );
     }
 
     const response = await this.authService.loginWithProvider(req.user);
