@@ -19,11 +19,6 @@ import {
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { DataSource } from 'typeorm';
 
-export interface GoogleUserValidationResult {
-  user: User;
-  isNewUser: boolean;
-}
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -222,55 +217,49 @@ export class AuthService {
   }
 
   async validateGoogleUser(
-    googleUser: CreateGoogleUserDto,
-    intent: 'login' | 'register' = 'login',
-  ): Promise<GoogleUserValidationResult> {
-    const normalizedEmail = googleUser.email.trim().toLowerCase();
+  googleUser: CreateGoogleUserDto,
+  intent: 'login' | 'register' = 'login',
+): Promise<{ user: User; isNewUser: boolean }> {
+  const normalizedEmail = googleUser.email.trim().toLowerCase();
 
-    const existingUser =
-      await this.usersRepository.getUserByEmail(normalizedEmail);
+  const existingUser =
+    await this.usersRepository.getUserByEmail(normalizedEmail);
 
-    console.log('[AuthService.validateGoogleUser]', {
-      normalizedEmail,
-      intent,
-      found: !!existingUser,
-      auth_provider: existingUser?.auth_provider,
-    });
+  console.log('[AuthService.validateGoogleUser]', {
+    normalizedEmail,
+    intent,
+    found: !!existingUser,
+    auth_provider: existingUser?.auth_provider,
+  });
 
-    if (existingUser) {
-      if (existingUser.auth_provider !== AuthProvider.GOOGLE_AUTH) {
-        throw new BadRequestException('provider_conflict');
-      }
-
-      if (intent === 'register') {
-        throw new BadRequestException('google_account_exists');
-      }
-
-      return {
-        user: existingUser,
-        isNewUser: false,
-      };
+  if (existingUser) {
+    if (existingUser.auth_provider !== AuthProvider.GOOGLE_AUTH) {
+      throw new BadRequestException('provider_conflict');
     }
 
-    await this.usersRepository.createUser({
-      ...googleUser,
-      email: normalizedEmail,
-      auth_provider: AuthProvider.GOOGLE_AUTH,
-    });
-
-    const createdUser = await this.usersRepository.getUserByEmail(
-      googleUser.email,
-    );
-
-    if (!createdUser) {
-      throw new UnauthorizedException('No se pudo crear el usuario de Google');
+    if (intent === 'register') {
+      throw new BadRequestException('google_account_exists');
     }
 
-    return {
-      user: createdUser,
-      isNewUser: true,
-    };
+    return { user: existingUser, isNewUser: false };
   }
+
+  await this.usersRepository.createUser({
+    ...googleUser,
+    email: normalizedEmail,
+    auth_provider: AuthProvider.GOOGLE_AUTH,
+  });
+
+  const createdUser = await this.usersRepository.getUserByEmail(
+    googleUser.email,
+  );
+
+  if (!createdUser) {
+    throw new UnauthorizedException('No se pudo crear el usuario de Google');
+  }
+
+  return { user: createdUser, isNewUser: true };  // <-- fix
+}
 
   private assignRoles(user: User): UserRole[] {
     const roles: UserRole[] = [user.role];

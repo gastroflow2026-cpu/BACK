@@ -56,6 +56,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     try {
       const intent = req.query?.state === 'register' ? 'register' : 'login';
 
+      
       const { user, isNewUser } = await this.authService.validateGoogleUser(
         {
           email,
