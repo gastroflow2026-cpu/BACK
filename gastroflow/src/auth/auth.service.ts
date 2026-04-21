@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthProvider, UserRole } from '../common/user.enums';
 import { User } from '../users/entities/user.entity';
 import { CreateGoogleUserDto } from '../users/dto/CreateGoogleUserDto';
+import { MailService } from '../mail/mail.service';
 import {
   OwnerRestaurantOnboardingDto,
   RegisterRestaurantOwnerDto,
@@ -23,6 +24,7 @@ export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -40,10 +42,28 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    return await this.usersRepository.createUser({
+    const createdUser = await this.usersRepository.createUser({
       ...newUserData,
       password_hash: hashedPassword,
     });
+
+    const savedUser = await this.usersRepository.getUserByEmail(email);
+
+    if (savedUser) {
+      try {
+        await this.mailService.sendWelcomeEmail(
+          savedUser.email,
+          savedUser.first_name,
+        );
+      } catch (error) {
+        console.error(
+          'Usuario creado, pero falló el correo de bienvenida',
+          error,
+        );
+      }
+    }
+
+    return createdUser;
   }
 
   async signIn(email: string, password: string) {
@@ -71,6 +91,14 @@ export class AuthService {
     return this.buildAuthResponse(dbUser);
   }
 
+  loginWithProvider(user: User) {
+    const payload = {
+      id: user.id,
+      name: user.first_name,
+      email: user.email,
+      roles: this.assignRoles(user),
+      auth_provider: user.auth_provider,
+    };
   async loginWithProvider(user: User) {
     return this.buildAuthResponse(user);
   }

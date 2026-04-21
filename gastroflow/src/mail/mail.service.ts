@@ -9,7 +9,7 @@ interface SendTemplateMailOptions {
   to: string;
   subject: string;
   template: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
 }
 
 @Injectable()
@@ -70,6 +70,24 @@ export class MailService {
     });
   }
 
+  async sendReservationCreatedEmail(data: {
+    to: string;
+    name: string;
+    date: string;
+    time: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Reserva confirmada',
+      template: 'reservation-created',
+      context: {
+        name: data.name,
+        date: data.date,
+        time: data.time,
+      },
+    });
+  }
+
   async sendSubscriptionActivatedEmail(
     to: string,
     name: string,
@@ -82,6 +100,20 @@ export class MailService {
       context: {
         name,
         planName,
+      },
+    });
+  }
+
+  async sendReservationCancelledEmail(data: {
+    to: string;
+    name: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Reserva cancelada',
+      template: 'reservation-cancelled',
+      context: {
+        name: data.name,
       },
     });
   }
