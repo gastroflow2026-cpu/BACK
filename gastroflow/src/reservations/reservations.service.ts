@@ -21,7 +21,7 @@ export class ReservationsService {
     reservationData: newReservation,
     userId: string,
   ) {
-    const savedReservation =
+    const { reservation, paymentUrl } =
       await this.reservationsRepository.createNewReservation(
         restaurantId,
         reservationData,
@@ -29,21 +29,21 @@ export class ReservationsService {
       );
 
     try {
-      if (savedReservation?.user?.email) {
+      if (reservation.user?.email) {
         await this.mailService.sendReservationCreatedEmail({
-          to: savedReservation.user.email,
-          name: savedReservation.user.first_name,
-          date: savedReservation.start_time.toLocaleDateString('es-CO'),
-          time: savedReservation.start_time.toLocaleTimeString('es-CO'),
+          to: reservation.user.email,
+          name: reservation.user.first_name,
+          date: reservation.start_time.toLocaleDateString('es-CO'),
+          time: reservation.start_time.toLocaleTimeString('es-CO'),
         });
       }
     } catch {
       this.logger.warn(
-        'La reserva se creó correctamente, pero falló el envío del correo',
+        'La reserva se creÃ³ correctamente, pero fallÃ³ el envÃ­o del correo',
       );
     }
 
-    return savedReservation;
+    return paymentUrl;
   }
 
   async cancelReservation(restaurantId: string, reservationId: string) {
@@ -62,7 +62,7 @@ export class ReservationsService {
       }
     } catch {
       this.logger.warn(
-        'La reserva se canceló correctamente, pero falló el envío del correo',
+        'La reserva se cancelÃ³ correctamente, pero fallÃ³ el envÃ­o del correo',
       );
     }
 

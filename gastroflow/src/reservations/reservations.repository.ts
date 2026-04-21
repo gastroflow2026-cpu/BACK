@@ -17,6 +17,11 @@ import { RestaurantTables } from '../restaurant_tables/entities/restaurant_table
 import { User } from '../users/entities/user.entity';
 import { ReservationsPaymentService } from '../reservations-payment/reservations-payment.service';
 
+export interface CreateReservationResult {
+  reservation: Reservation;
+  paymentUrl: string | null;
+}
+
 @Injectable()
 export class ReservationsRepository {
   constructor(
@@ -57,7 +62,7 @@ export class ReservationsRepository {
     restaurantId: string,
     reservationData: newReservation,
     userId: string,
-  ) {
+  ): Promise<CreateReservationResult> {
     const restaurant = await this.restaurantsRepository.findOne({
       where: { id: restaurantId },
     });
@@ -131,7 +136,19 @@ export class ReservationsRepository {
     const reservationPayment =
       await this.reservationsPaymentService.stripeCheckout(savedReservation.id);
 
-    return reservationPayment.url;
+    const reservation = await this.reservationsRepository.findOne({
+      where: { id: savedReservation.id },
+      relations: ['user'],
+    });
+
+    if (!reservation) {
+      throw new NotFoundException('Reserva no encontrada');
+    }
+
+    return {
+      reservation,
+      paymentUrl: reservationPayment.url,
+    };
   }
 
   async cancelReservation(restaurantId: string, reservationId: string) {

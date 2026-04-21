@@ -19,6 +19,11 @@ import {
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { DataSource } from 'typeorm';
 
+export interface GoogleUserValidationResult {
+  user: User;
+  isNewUser: boolean;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -91,14 +96,6 @@ export class AuthService {
     return this.buildAuthResponse(dbUser);
   }
 
-  loginWithProvider(user: User) {
-    const payload = {
-      id: user.id,
-      name: user.first_name,
-      email: user.email,
-      roles: this.assignRoles(user),
-      auth_provider: user.auth_provider,
-    };
   async loginWithProvider(user: User) {
     return this.buildAuthResponse(user);
   }
@@ -227,7 +224,7 @@ export class AuthService {
   async validateGoogleUser(
     googleUser: CreateGoogleUserDto,
     intent: 'login' | 'register' = 'login',
-  ): Promise<User> {
+  ): Promise<GoogleUserValidationResult> {
     const normalizedEmail = googleUser.email.trim().toLowerCase();
 
     const existingUser =
@@ -249,7 +246,10 @@ export class AuthService {
         throw new BadRequestException('google_account_exists');
       }
 
-      return existingUser;
+      return {
+        user: existingUser,
+        isNewUser: false,
+      };
     }
 
     await this.usersRepository.createUser({
@@ -266,7 +266,10 @@ export class AuthService {
       throw new UnauthorizedException('No se pudo crear el usuario de Google');
     }
 
-    return createdUser;
+    return {
+      user: createdUser,
+      isNewUser: true,
+    };
   }
 
   private assignRoles(user: User): UserRole[] {
