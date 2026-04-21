@@ -39,6 +39,12 @@ export class Restaurant {
     unique: true,
   })
   slug!: string;
+ 
+   @Column({
+    type: 'text',
+    nullable: true,
+  })
+  description!: string;
 
   @Column({
     type: 'varchar',
@@ -77,17 +83,33 @@ export class Restaurant {
   country!: string;
 
   @Column({
+    type: 'text',
+    nullable: true,
+  })
+  category!: string;
+
+  @Column({
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  rating!: number;
+
+  @Column({
     type: 'varchar',
     length: 255,
     nullable: true,
   })
-  logo_url!: string;
+  image_url!: string;
+
 
   @Column({
     type: 'text',
     nullable: true,
   })
-  description!: string;
+  about!: string;
 
   @Column({
     default: true,
