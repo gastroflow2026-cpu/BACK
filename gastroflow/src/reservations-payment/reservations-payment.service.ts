@@ -35,8 +35,8 @@ export class ReservationsPaymentService {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             mode: 'payment',
-            success_url: 'http://localhost:3001/success',
-            cancel_url: 'http://localhost:3001/restaurant/1',
+            success_url: 'https://front-gastroflow.onrender.com/success',
+            cancel_url: 'https://front-gastroflow.onrender.com',
             metadata: {
                 reservation_id: reservationId,
             },
