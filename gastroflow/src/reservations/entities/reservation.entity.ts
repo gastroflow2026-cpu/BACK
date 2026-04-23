@@ -44,7 +44,7 @@ export class Reservation {
   })
   customer_name!: string;
 
-    @Column({
+  @Column({
     type: 'varchar',
     length: 50,
     nullable: false,
@@ -54,15 +54,14 @@ export class Reservation {
 
   @Column({
     type: 'bigint',
-    nullable: false,
-    default: 0
+    default: 0,
   })
-  customer_phone!: number;
+  customer_phone!: string;
 
   @Column({
-    type: 'timestamp'
+    type: 'timestamp',
   })
-  reservation_date!:Date;
+  reservation_date!: Date;
 
   @Column({ type: 'timestamp' })
   start_time!: Date;
@@ -74,7 +73,7 @@ export class Reservation {
     type: 'int',
     nullable: false,
   })
-  guests_count!:number
+  guests_count!: number;
 
   @Column({
     type: 'enum',
@@ -83,7 +82,6 @@ export class Reservation {
   })
   status!: string;
 
-  
   @Column({
     type: 'varchar',
     length: 100,
@@ -96,7 +94,6 @@ export class Reservation {
     nullable: true,
   })
   deposit_amount!: number;
-
 
   @Column({
     default: true,

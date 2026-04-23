@@ -9,14 +9,14 @@ interface SendTemplateMailOptions {
   to: string;
   subject: string;
   template: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
 }
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(private readonly mailerService: MailerService) { }
 
   async sendTemplateMail({
     to,
@@ -70,6 +70,24 @@ export class MailService {
     });
   }
 
+  async sendReservationCreatedEmail(data: {
+    to: string;
+    name: string;
+    date: string;
+    time: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Reserva confirmada',
+      template: 'reservation-created',
+      context: {
+        name: data.name,
+        date: data.date,
+        time: data.time,
+      },
+    });
+  }
+
   async sendSubscriptionActivatedEmail(
     to: string,
     name: string,
@@ -86,13 +104,29 @@ export class MailService {
     });
   }
 
+
   async sendPasswordResetEmail(to: string, name: string, token: string): Promise<void> {
-  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-  await this.sendTemplateMail({
-    to,
-    subject: 'Restablecer contraseña — Gastroflow',
-    template: 'reset-password',
-    context: { name, resetLink },
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    await this.sendTemplateMail({
+      to,
+      subject: 'Restablecer contraseña — Gastroflow',
+      template: 'reset-password',
+      context: { name, resetLink },
+    });
+  }
+
+
+  async sendReservationCancelledEmail(data: {
+    to: string;
+    name: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Reserva cancelada',
+      template: 'reservation-cancelled',
+      context: {
+        name: data.name,
+      },
     });
   }
 }

@@ -12,6 +12,7 @@ import { UsersRepository } from '../users/user.repository';
 import { GoogleLoginGuard } from './guards/google-auth/google.login.guard';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { GoogleRegisterGuard } from './guards/google-auth/google.register.guard';
+import { MailModule } from '../mail/mail.module';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
 @Module({
@@ -20,6 +21,7 @@ import { Restaurant } from '../restaurants/entities/restaurant.entity';
     TypeOrmModule.forFeature([User, Restaurant]),
     ConfigModule.forFeature(googleOauthConfig),
     UsersModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -33,4 +35,3 @@ import { Restaurant } from '../restaurants/entities/restaurant.entity';
   exports: [AuthService, /*UsersRepository*/],
 })
 export class AuthModule {}
-

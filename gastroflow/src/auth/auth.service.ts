@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthProvider, UserRole } from '../common/user.enums';
 import { User } from '../users/entities/user.entity';
 import { CreateGoogleUserDto } from '../users/dto/CreateGoogleUserDto';
+import { MailService } from '../mail/mail.service';
 import {
   OwnerRestaurantOnboardingDto,
   RegisterRestaurantOwnerDto,
@@ -23,6 +24,7 @@ export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -40,10 +42,28 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    return await this.usersRepository.createUser({
+    const createdUser = await this.usersRepository.createUser({
       ...newUserData,
       password_hash: hashedPassword,
     });
+
+    const savedUser = await this.usersRepository.getUserByEmail(email);
+
+    if (savedUser) {
+      try {
+        await this.mailService.sendWelcomeEmail(
+          savedUser.email,
+          savedUser.first_name,
+        );
+      } catch (error) {
+        console.error(
+          'Usuario creado, pero falló el correo de bienvenida',
+          error,
+        );
+      }
+    }
+
+    return createdUser;
   }
 
   async signIn(email: string, password: string) {
@@ -197,49 +217,49 @@ export class AuthService {
   }
 
   async validateGoogleUser(
-    googleUser: CreateGoogleUserDto,
-    intent: 'login' | 'register' = 'login',
-  ): Promise<User> {
-    const normalizedEmail = googleUser.email.trim().toLowerCase();
+  googleUser: CreateGoogleUserDto,
+  intent: 'login' | 'register' = 'login',
+): Promise<{ user: User; isNewUser: boolean }> {
+  const normalizedEmail = googleUser.email.trim().toLowerCase();
 
-    const existingUser =
-      await this.usersRepository.getUserByEmail(normalizedEmail);
+  const existingUser =
+    await this.usersRepository.getUserByEmail(normalizedEmail);
 
-    console.log('[AuthService.validateGoogleUser]', {
-      normalizedEmail,
-      intent,
-      found: !!existingUser,
-      auth_provider: existingUser?.auth_provider,
-    });
+  console.log('[AuthService.validateGoogleUser]', {
+    normalizedEmail,
+    intent,
+    found: !!existingUser,
+    auth_provider: existingUser?.auth_provider,
+  });
 
-    if (existingUser) {
-      if (existingUser.auth_provider !== AuthProvider.GOOGLE_AUTH) {
-        throw new BadRequestException('provider_conflict');
-      }
-
-      if (intent === 'register') {
-        throw new BadRequestException('google_account_exists');
-      }
-
-      return existingUser;
+  if (existingUser) {
+    if (existingUser.auth_provider !== AuthProvider.GOOGLE_AUTH) {
+      throw new BadRequestException('provider_conflict');
     }
 
-    await this.usersRepository.createUser({
-      ...googleUser,
-      email: normalizedEmail,
-      auth_provider: AuthProvider.GOOGLE_AUTH,
-    });
-
-    const createdUser = await this.usersRepository.getUserByEmail(
-      googleUser.email,
-    );
-
-    if (!createdUser) {
-      throw new UnauthorizedException('No se pudo crear el usuario de Google');
+    if (intent === 'register') {
+      throw new BadRequestException('google_account_exists');
     }
 
-    return createdUser;
+    return { user: existingUser, isNewUser: false };
   }
+
+  await this.usersRepository.createUser({
+    ...googleUser,
+    email: normalizedEmail,
+    auth_provider: AuthProvider.GOOGLE_AUTH,
+  });
+
+  const createdUser = await this.usersRepository.getUserByEmail(
+    googleUser.email,
+  );
+
+  if (!createdUser) {
+    throw new UnauthorizedException('No se pudo crear el usuario de Google');
+  }
+
+  return { user: createdUser, isNewUser: true };  // <-- fix
+}
 
   private assignRoles(user: User): UserRole[] {
     const roles: UserRole[] = [user.role];
