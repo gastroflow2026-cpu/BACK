@@ -1,14 +1,18 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UsersRepository } from './user.repository';
-import { CreateEmployeeDto, ResetPasswordDto, UpdateUserDto } from './dto/user.dto';
+import { ConfirmPasswordResetDto, CreateEmployeeDto, RequestPasswordResetDto, ResetPasswordDto, UpdateUserDto } from './dto/user.dto';
 import { UserRole } from '../common/user.enums';
 import * as bcrypt from 'bcrypt';
+import { MailService } from '../mail/mail.service';
 
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly userRepository: UsersRepository) {}
+    constructor(
+        private readonly userRepository: UsersRepository,
+        private readonly mailService: MailService,
+    ) {}
   
 
     async getAllUsers(page: number, limit: number): Promise<Omit<User, 'password_hash'>[]> {
@@ -57,6 +61,39 @@ export class UsersService {
     });
 
     return { id };
-  }
+    }
+
+    async requestPasswordReset(dto: RequestPasswordResetDto): Promise<{ message: string }> {
+        const genericMsg = { message: 'Si el email existe, recibirás un enlace en breve.' };
+  
+        const user = await this.userRepository.getUserByEmail(dto.email);
+        console.log('Usuario encontrado:', user); 
+        if (!user) return genericMsg; // No revelar si el email existe
+
+        const token = crypto.randomUUID();
+        const expires_at = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+        await this.userRepository.saveResetToken(user.id, token, expires_at);
+        console.log('Enviando email a:', user.email);
+        await this.mailService.sendPasswordResetEmail(user.email, user.first_name, token);
+
+        return genericMsg;
+    }
+
+    async confirmPasswordReset(dto: ConfirmPasswordResetDto): Promise<{ message: string }> {
+        const record = await this.userRepository.findResetToken(dto.token);
+
+        if (!record || record.used || record.expires_at < new Date()) {
+        throw new BadRequestException('Token inválido o expirado.');
+        }
+
+        await this.userRepository.resetPassword(record.user_id, { 
+        newPassword: dto.newPassword,
+        confirmNewPassword: dto.confirmNewPassword,
+        });
+        await this.userRepository.markTokenAsUsed(record);
+
+        return { message: 'Contraseña actualizada correctamente.' };
+    }
 
 }

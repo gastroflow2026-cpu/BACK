@@ -25,12 +25,12 @@ import { Restaurant } from '../restaurants/entities/restaurant.entity';
   providers: [
     AuthService,
     GoogleStrategy,
-    UsersRepository,
+   // UsersRepository,
     GoogleLoginGuard,
     GoogleAuthGuard,
     GoogleRegisterGuard,
   ],
-  exports: [AuthService, UsersRepository],
+  exports: [AuthService, /*UsersRepository*/],
 })
 export class AuthModule {}
 

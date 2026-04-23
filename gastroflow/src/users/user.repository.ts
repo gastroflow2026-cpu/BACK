@@ -5,10 +5,13 @@ import { Repository } from "typeorm";
 import { ResetPasswordDto, UpdateUserDto } from "./dto/user.dto";
 import * as bcrypt from 'bcrypt';
 import { UserRole } from "../common/user.enums";
+import { PasswordResetToken } from "./entities/password-reset-token.entity";
 
 @Injectable()
 export class UsersRepository {
-    constructor(@InjectRepository(User) private ormUsersRepository: Repository<User>) {}
+    constructor(
+        @InjectRepository(User) private ormUsersRepository: Repository<User>,
+        @InjectRepository(PasswordResetToken) private tokenRepository: Repository<PasswordResetToken>) {}
 
     async getAllUsers(page: number, limit: number): Promise<Omit<User, 'password_hash'>[]> {
         const skip = (page - 1) * limit;
@@ -89,6 +92,20 @@ export class UsersRepository {
         foundUser.password_hash = hashedPassword;
         const savedUser = await this.ormUsersRepository.save(foundUser);
         return { message: `Contraseña modificada correctamente` };
+    }
+
+
+    async saveResetToken(user_id: string, token: string, expires_at: Date): Promise<void> {
+    await this.tokenRepository.save({ user_id, token, expires_at });
+    }
+
+    async findResetToken(token: string): Promise<PasswordResetToken | null> {
+    return this.tokenRepository.findOneBy({ token });
+    }
+
+    async markTokenAsUsed(token: PasswordResetToken): Promise<void> {
+    token.used = true;
+    await this.tokenRepository.save(token);
     }
 
 }
