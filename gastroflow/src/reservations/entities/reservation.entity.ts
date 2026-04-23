@@ -53,7 +53,6 @@ export class Reservation {
   customer_email!: string;
 
   @Column({
-    nullable: true,
     type: 'bigint',
     nullable: false,
     default: 0

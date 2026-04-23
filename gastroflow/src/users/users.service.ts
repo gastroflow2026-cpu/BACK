@@ -48,7 +48,7 @@ export class UsersService {
 
     const password_hash = await bcrypt.hash(dto.password, 10);
     const id = await this.userRepository.createUser({
-      name: dto.name,
+      first_name: dto.name,
       email: dto.email,
       password_hash,
       role: dto.role,
