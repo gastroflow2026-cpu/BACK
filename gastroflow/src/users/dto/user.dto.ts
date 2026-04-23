@@ -194,7 +194,10 @@ export class ResetPasswordDto {
 
 export class CreateEmployeeDto {
   @IsString()
-  name!: string;
+  first_name!: string;
+
+  @IsString()
+  last_name!: string;
 
   @IsEmail()
   email!: string;

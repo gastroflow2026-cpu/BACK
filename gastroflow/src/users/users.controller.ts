@@ -126,6 +126,7 @@ export class UsersController {
     return this.usersService.resetPassword(id, dto);
   }
 
+  @ApiBearerAuth()
   @Post('employees')
   @UseGuards(AuthGuard, RolesGuard)
   @Role(UserRole.REST_ADMIN)
