@@ -305,6 +305,7 @@ export class AuthService {
       auth_provider: user.auth_provider,
       restaurant_id: user.restaurant_id ?? null,
       requires_restaurant_onboarding: requiresRestaurantOnboarding,
+      imgUrl: user.imgUrl ?? null,
     };
     const token = this.jwtService.sign(payload, {
       expiresIn: '1h',

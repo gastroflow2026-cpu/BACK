@@ -13,7 +13,7 @@ export const typeOrmConfig = registerAs('typeorm', () => ({
     },
   },
   autoLoadEntities: true,
-  synchronize: true,
+  synchronize: false,
   logging: true,
   dropSchema: false,
 }));

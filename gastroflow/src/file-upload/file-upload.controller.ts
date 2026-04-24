@@ -6,10 +6,11 @@ import { AuthGuard } from "../auth/guards/Auth.guard";
 import { RolesGuard } from "../auth/guards/Role.guard";
 import { Role } from "../decorators/roles.decorators";
 import { UserRole } from "../common/user.enums";
+import { UploadApiResponse } from "cloudinary";
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard, RolesGuard)
-@Role(UserRole.REST_ADMIN)
+@Role(UserRole.CUSTOMER)
 @ApiTags('File-Uploads')
 @Controller('files')
 export class FileUploadController {
