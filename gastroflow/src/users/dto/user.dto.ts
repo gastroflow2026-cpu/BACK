@@ -192,4 +192,49 @@ export class ResetPasswordDto {
   confirmNewPassword!: string;
 }
 
+export class CreateEmployeeDto {
+  @IsString()
+  first_name!: string;
+
+  @IsString()
+  last_name!: string;
+
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @MinLength(8)
+  password!: string;
+
+  @IsEnum(UserRole)
+  role!: UserRole;
+
+  @IsUUID()
+  restaurant_id!: string;
+}
+export class RequestPasswordResetDto {
+  @IsEmail()
+  @ApiProperty({ example: 'usuario@mail.com' })
+  email!: string;
+}
+export class ConfirmPasswordResetDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ example: 'uuid-del-token' })
+  token!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(15)
+  @IsStrongPassword({ minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })
+  @ApiProperty({ example: 'NewPassword01!' })
+  newPassword!: string;
+
+  @IsNotEmpty()
+  @Validate(MatchPassword, ['newPassword'])
+  @ApiProperty({ example: 'NewPassword01!' })
+  confirmNewPassword!: string;
+}
+
 

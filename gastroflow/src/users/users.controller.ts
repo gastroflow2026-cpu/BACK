@@ -6,7 +6,7 @@ import { RolesGuard } from '../auth/guards/Role.guard';
 import { Role } from '../decorators/roles.decorators';
 import { AuthGuard } from '../auth/guards/Auth.guard';
 import { UserRole } from '../common/user.enums';
-import { ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
+import { ConfirmPasswordResetDto, CreateEmployeeDto, RequestPasswordResetDto, ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
 import { GetUser } from '../decorators/get-user.decorator';
 
 
@@ -126,5 +126,25 @@ export class UsersController {
     return this.usersService.resetPassword(id, dto);
   }
 
-  
+  @ApiBearerAuth()
+  @Post('employees')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(UserRole.REST_ADMIN)
+  @ApiOperation({ summary: 'Crear un nuevo empleado' })
+  createEmployee(@Body() dto: CreateEmployeeDto) {
+    return this.usersService.createEmployee(dto);
+  }
+
+  @Post('password-reset/request')
+  @ApiOperation({ summary: 'Solicitar reset de contraseña por email' })
+  requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
+  return this.usersService.requestPasswordReset(dto);
+  }
+
+  @Post('password-reset/confirm')
+  @ApiOperation({ summary: 'Confirmar reset con token y nueva contraseña' })
+  confirmPasswordReset(@Body() dto: ConfirmPasswordResetDto) {
+  return this.usersService.confirmPasswordReset(dto);
+  }
+
 }
