@@ -6,7 +6,7 @@ import { RolesGuard } from '../auth/guards/Role.guard';
 import { Role } from '../decorators/roles.decorators';
 import { AuthGuard } from '../auth/guards/Auth.guard';
 import { UserRole } from '../common/user.enums';
-import { ConfirmPasswordResetDto, CreateEmployeeDto, RequestPasswordResetDto, ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
+import { AdminResetPasswordDto, ConfirmPasswordResetDto, RequestPasswordResetDto, ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
 import { GetUser } from '../decorators/get-user.decorator';
 
 
@@ -120,19 +120,14 @@ export class UsersController {
   @ApiBearerAuth()
   @Patch(':id/resetpassword') 
   @UseGuards(AuthGuard, RolesGuard)
-  @Role(UserRole.SUPER_ADMIN)
+  @Role(UserRole.SUPER_ADMIN, UserRole.REST_ADMIN)
   @ApiOperation({ summary: 'Resetear contraseña de usuario por super_admin' })
-  async resetPassword(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ResetPasswordDto) {
-    return this.usersService.resetPassword(id, dto);
-  }
-
-  @ApiBearerAuth()
-  @Post('employees')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Role(UserRole.REST_ADMIN)
-  @ApiOperation({ summary: 'Crear un nuevo empleado' })
-  createEmployee(@Body() dto: CreateEmployeeDto) {
-    return this.usersService.createEmployee(dto);
+  async resetPassword(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: AdminResetPasswordDto,
+    @Req() req: any,
+  ) {
+    return this.usersService.resetEmployeePassword(id, dto, req.user);
   }
 
   @Post('password-reset/request')

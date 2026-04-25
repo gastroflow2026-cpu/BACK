@@ -1,10 +1,27 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UsersRepository } from './user.repository';
-import { ConfirmPasswordResetDto, CreateEmployeeDto, RequestPasswordResetDto, ResetPasswordDto, UpdateUserDto } from './dto/user.dto';
+import { AdminResetPasswordDto, ConfirmPasswordResetDto, CreateEmployeeDto, RequestPasswordResetDto, ResetPasswordDto, UpdateUserDto } from './dto/user.dto';
 import { UserRole } from '../common/user.enums';
 import * as bcrypt from 'bcrypt';
 import { MailService } from '../mail/mail.service';
+
+export interface EmployeeResponse {
+    id: string;
+    name: string;
+    lastName: string;
+    email: string;
+    role: string;
+    isActive: boolean;
+    avatar?: string;
+}
+
+interface RequestUserPayload {
+    id: string;
+    roles?: UserRole[];
+    restaurant_id?: string;
+    restaurantId?: string;
+}
 
 
 @Injectable()
@@ -44,23 +61,59 @@ export class UsersService {
 
     }
 
-    async createEmployee(dto: CreateEmployeeDto): Promise<{ id: string }> {
-    const existing = await this.userRepository.getUserByEmail(dto.email);
-    if (existing) {
-      throw new ConflictException(`Ya existe un usuario con el email ${dto.email}`);
+    async getEmployees(requestUser: RequestUserPayload): Promise<EmployeeResponse[]> {
+        const restaurantId = this.getRestaurantIdFromPayload(requestUser);
+        const employees = await this.userRepository.getEmployeesByRestaurantId(restaurantId);
+        return employees.map((employee) => this.toEmployeeResponse(employee));
     }
 
-    const password_hash = await bcrypt.hash(dto.password, 10);
-    const id = await this.userRepository.createUser({
-      first_name: dto.first_name,
-      last_name: dto.last_name, 
-      email: dto.email,
-      password_hash,
-      role: dto.role,
-      restaurant_id: dto.restaurant_id,
-    });
+    async createEmployee(dto: CreateEmployeeDto, requestUser: RequestUserPayload): Promise<EmployeeResponse> {
+        const restaurantId = this.getRestaurantIdFromPayload(requestUser);
+        this.validateCreateEmployeeDto(dto);
 
-    return { id };
+        const existing = await this.userRepository.getUserByEmail(dto.email);
+        if (existing) {
+            throw new ConflictException(`Ya existe un usuario con el email ${dto.email}`);
+        }
+
+        const password_hash = await bcrypt.hash(dto.password, 10);
+        const id = await this.userRepository.createUser({
+            first_name: dto.name.trim(),
+            last_name: dto.lastName.trim(),
+            email: dto.email.trim().toLowerCase(),
+            password_hash,
+            role: this.toUserRole(dto.role),
+            restaurant_id: restaurantId,
+        });
+
+        const employee = await this.userRepository.getEmployeeByIdAndRestaurantId(id, restaurantId);
+        if (!employee) throw new NotFoundException(`No existe empleado con id ${id}`);
+
+        return this.toEmployeeResponse(employee);
+    }
+
+    async updateEmployeeStatus(id: string, isActive: boolean, requestUser: RequestUserPayload): Promise<EmployeeResponse> {
+        if (typeof isActive !== 'boolean') {
+            throw new BadRequestException('isActive debe ser boolean');
+        }
+
+        const employee = await this.getEmployeeForRequester(id, requestUser);
+        const updatedEmployee = await this.userRepository.updateUserStatus(employee.id, isActive);
+
+        return this.toEmployeeResponse(updatedEmployee);
+    }
+
+    async resetEmployeePassword(id: string, dto: AdminResetPasswordDto, requestUser: RequestUserPayload): Promise<{ message: string }> {
+        if (!dto.newPassword || dto.newPassword.length < 8 || dto.newPassword.length > 15) {
+            throw new BadRequestException('newPassword debe tener entre 8 y 15 caracteres');
+        }
+
+        await this.getEmployeeForRequester(id, requestUser);
+
+        return this.userRepository.resetPassword(id, {
+            newPassword: dto.newPassword,
+            confirmNewPassword: dto.newPassword,
+        });
     }
 
     async requestPasswordReset(dto: RequestPasswordResetDto): Promise<{ message: string }> {
@@ -94,6 +147,75 @@ export class UsersService {
         await this.userRepository.markTokenAsUsed(record);
 
         return { message: 'Contraseña actualizada correctamente.' };
+    }
+
+    private getRestaurantIdFromPayload(requestUser: RequestUserPayload): string {
+        const restaurantId = requestUser.restaurant_id ?? requestUser.restaurantId;
+        if (!restaurantId) {
+            throw new BadRequestException('El usuario no tiene restaurante asociado');
+        }
+
+        return restaurantId;
+    }
+
+    private async getEmployeeForRequester(id: string, requestUser: RequestUserPayload): Promise<User> {
+        const isSuperAdmin = requestUser.roles?.includes(UserRole.SUPER_ADMIN);
+        const employee = isSuperAdmin
+            ? await this.userRepository.getEmployeeById(id)
+            : await this.userRepository.getEmployeeByIdAndRestaurantId(id, this.getRestaurantIdFromPayload(requestUser));
+
+        if (!employee) {
+            throw new NotFoundException(`No existe empleado con id ${id}`);
+        }
+
+        return employee;
+    }
+
+    private validateCreateEmployeeDto(dto: CreateEmployeeDto): void {
+        if (!dto.name?.trim()) throw new BadRequestException('name es requerido');
+        if (!dto.lastName?.trim()) throw new BadRequestException('lastName es requerido');
+        if (!dto.email?.trim()) throw new BadRequestException('email es requerido');
+        if (!dto.password || dto.password.length < 8) {
+            throw new BadRequestException('password debe tener al menos 8 caracteres');
+        }
+        this.toUserRole(dto.role);
+    }
+
+    private toUserRole(role: string): UserRole {
+        const rolesByFrontName: Record<string, UserRole> = {
+            cocinero: UserRole.CHEF,
+            cajero: UserRole.CASHIER,
+            mesero: UserRole.WAITER,
+        };
+
+        const userRole = rolesByFrontName[role];
+        if (!userRole) {
+            throw new BadRequestException('Rol invalido. Usa cocinero, cajero o mesero');
+        }
+
+        return userRole;
+    }
+
+    private toEmployeeRole(role: UserRole): string {
+        const rolesByUserRole: Record<string, string> = {
+            [UserRole.CHEF]: 'cocinero',
+            [UserRole.CASHIER]: 'cajero',
+            [UserRole.WAITER]: 'mesero',
+        };
+
+        return rolesByUserRole[role] ?? role;
+    }
+
+    private toEmployeeResponse(employee: User): EmployeeResponse {
+        return {
+            id: employee.id,
+            name: employee.first_name,
+            lastName: employee.last_name,
+            email: employee.email,
+            role: this.toEmployeeRole(employee.role),
+            isActive: employee.is_active,
+            avatar: employee.imgUrl ?? undefined,
+        };
     }
 
 }

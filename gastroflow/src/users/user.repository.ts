@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { ResetPasswordDto, UpdateUserDto } from "./dto/user.dto";
 import * as bcrypt from 'bcrypt';
 import { UserRole } from "../common/user.enums";
@@ -21,6 +21,44 @@ export class UsersRepository {
         });
 
         return allUsers.map(({ password_hash, ...userNoPassword }) => userNoPassword);
+    }
+
+    async getEmployeesByRestaurantId(restaurantId: string): Promise<User[]> {
+        return this.ormUsersRepository.find({
+            where: {
+                restaurant_id: restaurantId,
+                role: In([UserRole.CHEF, UserRole.CASHIER, UserRole.WAITER]),
+            },
+            order: {
+                created_at: 'DESC',
+            },
+        });
+    }
+
+    async getEmployeeById(id: string): Promise<User | null> {
+        return this.ormUsersRepository.findOne({
+            where: {
+                id,
+                role: In([UserRole.CHEF, UserRole.CASHIER, UserRole.WAITER]),
+            },
+        });
+    }
+
+    async getEmployeeByIdAndRestaurantId(id: string, restaurantId: string): Promise<User | null> {
+        return this.ormUsersRepository.findOne({
+            where: {
+                id,
+                restaurant_id: restaurantId,
+                role: In([UserRole.CHEF, UserRole.CASHIER, UserRole.WAITER]),
+            },
+        });
+    }
+
+    async updateUserStatus(id: string, isActive: boolean): Promise<User> {
+        const user = await this.ormUsersRepository.findOneBy({ id });
+        if (!user) throw new NotFoundException(`No existe usuario con id ${id}`);
+        user.is_active = isActive;
+        return this.ormUsersRepository.save(user);
     }
 
     async createUser(newUserData: Partial<User>): Promise<string> {
