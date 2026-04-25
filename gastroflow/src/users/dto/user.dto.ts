@@ -8,6 +8,8 @@ import {
   IsStrongPassword,
   IsUrl,
   IsUUID,
+  IsBoolean,
+  IsIn,
   MaxLength,
   MinLength,
   Validate,
@@ -194,10 +196,10 @@ export class ResetPasswordDto {
 
 export class CreateEmployeeDto {
   @IsString()
-  first_name!: string;
+  name!: string;
 
   @IsString()
-  last_name!: string;
+  lastName!: string;
 
   @IsEmail()
   email!: string;
@@ -206,11 +208,21 @@ export class CreateEmployeeDto {
   @MinLength(8)
   password!: string;
 
-  @IsEnum(UserRole)
-  role!: UserRole;
+  @IsIn(['cocinero', 'cajero', 'mesero'])
+  role!: string;
+}
 
-  @IsUUID()
-  restaurant_id!: string;
+export class UpdateEmployeeStatusDto {
+  @IsBoolean()
+  isActive!: boolean;
+}
+
+export class AdminResetPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(15)
+  newPassword!: string;
 }
 export class RequestPasswordResetDto {
   @IsEmail()
