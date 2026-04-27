@@ -290,43 +290,43 @@ export class MenuService {
   // =========================
   // PUBLIC
   // =========================
-  async getPublicMenu() {
+  async getPublicMenu(restaurantId: string) {
     await this.ensureMenuImagesIntegrity();
 
     const categories = await this.menuCategoryRepository.find({
-      where: {
-        restaurant_id: BELLA_VITA_RESTAURANT_ID,
-        is_active: true,
-      },
-      order: {
-        display_order: 'ASC',
-        created_at: 'ASC',
-      },
+        where: {
+            restaurant_id: restaurantId,
+            is_active: true,
+        },
+        order: {
+            display_order: 'ASC',
+            created_at: 'ASC',
+        },
     });
 
     const result = await Promise.all(
-      categories.map(async (category) => {
-        const items = await this.menuItemRepository.find({
-          where: {
-            restaurant_id: BELLA_VITA_RESTAURANT_ID,
-            category_id: category.id,
-            status: MenuItemStatus.AVAILABLE,
-            is_available: true,
-          },
-          order: {
-            display_order: 'ASC',
-            created_at: 'ASC',
-          },
-        });
+        categories.map(async (category) => {
+            const items = await this.menuItemRepository.find({
+                where: {
+                    restaurant_id: restaurantId,
+                    category_id: category.id,
+                    status: MenuItemStatus.AVAILABLE,
+                    is_available: true,
+                },
+                order: {
+                    display_order: 'ASC',
+                    created_at: 'ASC',
+                },
+            });
 
-        return {
-          category_id: category.id,
-          category_name: category.name,
-          category_description: category.description,
-          display_order: category.display_order,
-          items,
-        };
-      }),
+            return {
+                category_id: category.id,
+                category_name: category.name,
+                category_description: category.description,
+                display_order: category.display_order,
+                items,
+            };
+        }),
     );
 
     return result.filter((group) => group.items.length > 0);

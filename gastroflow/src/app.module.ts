@@ -17,6 +17,7 @@ import { ReservationsPaymentModule } from './reservations-payment/reservations-p
 import { RestaurantTablesModule } from './restaurant_tables/restaurant_tables.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { NotificationsModule } from './notification/notification.module';
+import { OrderModule } from './orders/order.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { NotificationsModule } from './notification/notification.module';
     ReservationsModule,
     SubscriptionsModule,
     NotificationsModule,
+    OrderModule,
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },

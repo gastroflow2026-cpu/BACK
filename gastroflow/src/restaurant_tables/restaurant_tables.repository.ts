@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { RestaurantTables } from "./entities/restaurant_table.entity";
-import { Repository } from "typeorm";
+import { LessThan, MoreThan, Repository } from "typeorm";
 import { RestaurantTableStatus } from "../common/restaurant_table.enum";
 import { Restaurant } from "../restaurants/entities/restaurant.entity";
 import { CreateTableDto } from "./dto/restaurant_table.dto";
+import { Reservation } from "../reservations/entities/reservation.entity";
+import { ReservationStatus } from "../common/reservation.enum";
 
 export const tablesSeed = [
   { table_number: 1, capacity: 2, zone: 'Interior' },
@@ -25,17 +27,39 @@ export class RestaurantTablesRepository{
     constructor(
     @InjectRepository(RestaurantTables) private restaurantsTablesRepository: Repository<RestaurantTables>,
     @InjectRepository(Restaurant) private restaurantsRepository: Repository<Restaurant>, 
-){}
-    async getAvailableTables(restaurantId: string) {
-    const tables = await this.restaurantsTablesRepository.find({
+    @InjectRepository(Reservation) private reservationsRepository: Repository<Reservation>
+    ){}
+    
+    async getAvailableTables(restaurantId: string, date: string, time: string) {
+      console.log('getAvailableTables:', { restaurantId, date, time });
+     const allTables = await this.restaurantsTablesRepository.find({
+        where: { restaurant: { id: restaurantId }, is_active: true },
+    });
+    if (!date || !time) return allTables;
+
+    if (!allTables.length) throw new NotFoundException('No se encontraron mesas para este restaurante');
+
+    const startTime = new Date(`${date}T${time}:00`);
+    const endTime = new Date(startTime.getTime() + (2 * 60 + 15) * 60 * 1000);
+
+    const occupiedTables = await this.reservationsRepository.find({
         where: {
-        restaurant: { id: restaurantId },
+            restaurant: { id: restaurantId },
+            status: ReservationStatus.CONFIRMED,
+            start_time: LessThan(endTime),
+            end_time: MoreThan(startTime),
         },
+        relations: ['table'],
     });
 
-    if (!tables.length) throw new NotFoundException('No se encontraron mesas para este restaurante');
+    const occupiedIds = occupiedTables.map(r => r.table.id);
 
-    return tables;
+    return allTables.map(table => ({
+        ...table,
+        status: occupiedIds.includes(table.id) 
+            ? RestaurantTableStatus.RESERVED 
+            : RestaurantTableStatus.AVAILABLE,
+      }));
     }
 
     async updateStatus(restaurantId: string, tableId: string, status: RestaurantTableStatus) {
