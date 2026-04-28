@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { environment } from './config/enviroment';
 import 'reflect-metadata';
 import * as express from 'express';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true, bodyParser: false });
@@ -14,6 +15,12 @@ async function bootstrap() {
   app.enableCors({
     origin: environment.FRONTEND_URL,
   });
+
+  app.useGlobalPipes(
+  new ValidationPipe({
+    transform: true,
+  }),
+);
 
   const config = new DocumentBuilder()
     .setTitle('GastroFlow API')

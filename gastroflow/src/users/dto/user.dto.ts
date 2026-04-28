@@ -8,6 +8,8 @@ import {
   IsStrongPassword,
   IsUrl,
   IsUUID,
+  IsBoolean,
+  IsIn,
   MaxLength,
   MinLength,
   Validate,
@@ -183,6 +185,61 @@ export class ResetPasswordDto {
     minNumbers: 1,
     minSymbols: 1,
   })
+  @ApiProperty({ example: 'NewPassword01!' })
+  newPassword!: string;
+
+  @IsNotEmpty()
+  @Validate(MatchPassword, ['newPassword'])
+  @ApiProperty({ example: 'NewPassword01!' })
+  confirmNewPassword!: string;
+}
+
+export class CreateEmployeeDto {
+  @IsString()
+  name!: string;
+
+  @IsString()
+  lastName!: string;
+
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @MinLength(8)
+  password!: string;
+
+  @IsIn(['cocinero', 'cajero', 'mesero'])
+  role!: string;
+}
+
+export class UpdateEmployeeStatusDto {
+  @IsBoolean()
+  isActive!: boolean;
+}
+
+export class AdminResetPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(15)
+  newPassword!: string;
+}
+export class RequestPasswordResetDto {
+  @IsEmail()
+  @ApiProperty({ example: 'usuario@mail.com' })
+  email!: string;
+}
+export class ConfirmPasswordResetDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ example: 'uuid-del-token' })
+  token!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(15)
+  @IsStrongPassword({ minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })
   @ApiProperty({ example: 'NewPassword01!' })
   newPassword!: string;
 

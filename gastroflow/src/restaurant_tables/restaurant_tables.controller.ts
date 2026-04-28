@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { RestaurantTablesService } from './restaurant_tables.service';
 import { RestaurantTableStatus } from '../common/restaurant_table.enum';
 import { Role } from '../decorators/roles.decorators';
@@ -22,8 +22,12 @@ export class RestaurantTablesController {
     @ApiResponse({ status: 403, description: 'Acceso denegado' })
     @ApiResponse({ status: 404, description: 'No se encontraron mesas' })
     @Get('availableTables')
-    async getAvailableTables(@Param('restaurantId') restaurantId: string) {
-       return await this.restaurantTablesService.getAvailableTables(restaurantId)
+    async getAvailableTables(
+    @Param('restaurantId') restaurantId: string,
+    @Query('date') date: string,
+    @Query('time') time: string,
+    ) {
+    return this.restaurantTablesService.getAvailableTables(restaurantId, date, time);
     }
 
     @UseGuards(AuthGuard, RolesGuard)

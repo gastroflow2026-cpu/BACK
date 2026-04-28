@@ -80,7 +80,7 @@ export class Reservation {
     enum: ReservationStatus,
     default: ReservationStatus.PENDING,
   })
-  status!: string;
+  status!: ReservationStatus;
 
   @Column({
     type: 'varchar',

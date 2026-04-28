@@ -19,7 +19,6 @@ import { ReservationPayment } from '../reservations-payment/entities/reservation
       Restaurant,
       RestaurantTables,
       User,
-      User,
       ReservationPayment,
     ]),
     MailModule,

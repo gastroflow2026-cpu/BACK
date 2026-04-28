@@ -168,7 +168,7 @@ export class ReservationsRepository {
       throw new BadRequestException('La reserva ya está cancelada');
     }
 
-    reservation.status = 'CANCELADO';
+    reservation.status = ReservationStatus.CANCELADO;
 
     await this.restaurantsTableRepository.updateStatus(
       restaurantId,

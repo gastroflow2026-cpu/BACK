@@ -12,6 +12,7 @@ import {
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { RestaurantTableStatus } from '../../common/restaurant_table.enum';
 import { Reservation } from '../../reservations/entities/reservation.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity({
   name: 'RESTAURANTS_TABLES',
@@ -49,7 +50,7 @@ export class RestaurantTables {
     enum: RestaurantTableStatus,
     default: RestaurantTableStatus.AVAILABLE,
   })
-  status!: string;
+  status!: RestaurantTableStatus;
 
   @Column({
     default: true,
@@ -58,6 +59,10 @@ export class RestaurantTables {
 
   @OneToMany(() => Reservation, (reservation) => reservation.table)
   reservations!: Reservation[];
+
+  @OneToMany(() => Order, (order) => order.table)
+  orders!: Order[];
+
 
   @CreateDateColumn()
   created_at!: Date;

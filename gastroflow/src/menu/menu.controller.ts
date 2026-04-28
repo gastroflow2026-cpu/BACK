@@ -39,13 +39,13 @@ export class MenuController {
   // PUBLIC
   // =========================
 
-  @Get('public')
+  @Get(':restaurantId/public')
   @ApiOperation({
     summary: 'Obtener menú público',
     description: 'Retorna el menú visible al público, agrupado por categorías.',
   })
-  getPublicMenu() {
-    return this.menuService.getPublicMenu();
+  async getPublicMenu(@Param('restaurantId', ParseUUIDPipe) restaurantId: string) {
+    return this.menuService.getPublicMenu(restaurantId);
   }
 
   // =========================

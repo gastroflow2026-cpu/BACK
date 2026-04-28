@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../users/entities/user.entity";
 import { Repository } from "typeorm";
 import { FileUploadRepository } from "./file-upload.repository";
+import { UploadApiResponse } from "cloudinary";
 
 @Injectable()
 export class FileUploadService {
@@ -23,7 +24,7 @@ export class FileUploadService {
     
     const updatedUser = await this.userRepository.findOneBy({id: userId});
     if(!updatedUser) throw NotFoundException;
-    return `Imagen del usario con id: ${userId} actualizada correctamente`;
+    return response.url;
   }
 
 }

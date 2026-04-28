@@ -8,8 +8,8 @@ export class RestaurantTablesService {
 
     constructor(private readonly restaurantsTablesRepository: RestaurantTablesRepository){}
 
-    async getAvailableTables(restaurantId: string) {
-        return await this.restaurantsTablesRepository.getAvailableTables(restaurantId)
+    async getAvailableTables(restaurantId: string, date: string, time: string) {
+        return await this.restaurantsTablesRepository.getAvailableTables(restaurantId, date, time)
     }
 
     async updateStatus(restaurantId: string, tableId: string, status: RestaurantTableStatus){
