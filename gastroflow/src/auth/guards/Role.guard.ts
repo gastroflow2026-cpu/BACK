@@ -1,28 +1,40 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { UserRole } from "../../common/user.enums";
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { UserRole } from '../../common/user.enums';
 
 @Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
 
-export class RolesGuard implements CanActivate{
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<
+      (UserRole | string)[]
+    >('roles', [context.getHandler(), context.getClass()]);
 
-    constructor( private readonly reflector: Reflector){}
+    if (!requiredRoles || requiredRoles.length === 0) return true;
 
-    canActivate(context: ExecutionContext): boolean{
-        const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>('roles', [
-            context.getHandler(),
-            context.getClass(),
-    ]);
-        if (!requiredRoles || requiredRoles.length === 0) return true;
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
 
-        const request = context.switchToHttp().getRequest();
-        const user = request.user;
-        const hasRole = () => requiredRoles.some(role => user.roles.includes(role))
-        const isValid = user && user.roles && hasRole(); 
-        if(!isValid){
-            throw new ForbiddenException('Acceso denegado');
-        }else{
-            return true
-        }
+    const userRoles: string[] = Array.isArray(user?.roles)
+      ? user.roles
+      : user?.role
+        ? [user.role]
+        : [];
+
+    const isValid = requiredRoles.some((role) =>
+      userRoles.includes(String(role)),
+    );
+
+    if (!isValid) {
+      throw new ForbiddenException('Acceso denegado');
     }
+
+    return true;
+  }
 }

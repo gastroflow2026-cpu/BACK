@@ -18,14 +18,22 @@ import { RestaurantTablesModule } from './restaurant_tables/restaurant_tables.mo
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { NotificationsModule } from './notification/notification.module';
 import { OrderModule } from './orders/order.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { RestaurantVerificationModule } from './restaurant-verification/restaurant-verification.module';
+import { PlatformModule } from './plataform/platform.module';
 
 @Module({
   imports: [
+    PlatformModule  ,
+    RestaurantVerificationModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.development', '.env'],
       load: [typeOrmConfig, googleOauthConfig],
     }),
+
+    ScheduleModule.forRoot(),
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (ConfigService: ConfigService) =>
@@ -39,6 +47,7 @@ import { OrderModule } from './orders/order.module';
     MailModule,
     RestaurantTablesModule,
     ReservationsModule,
+    ReservationsPaymentModule,
     SubscriptionsModule,
     NotificationsModule,
     OrderModule,

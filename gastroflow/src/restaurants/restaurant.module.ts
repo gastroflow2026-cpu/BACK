@@ -4,9 +4,16 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Restaurant } from './entities/restaurant.entity';
 import { RestaurantTheme } from '../restaurant-theme/entities/restaurant-theme.entity';
+import { NotificationsModule } from '../notification/notification.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Restaurant, RestaurantTheme])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Restaurant,
+      RestaurantTheme,
+    ]),
+    NotificationsModule,
+  ],
   controllers: [RestaurantController],
   providers: [RestaurantService],
   exports: [RestaurantService],

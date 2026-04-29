@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsInt, IsNotEmpty, IsNumber, IsString, IsUUID, Max, Min } from "class-validator";
+import { IsInt, IsNotEmpty, IsNumber, IsString, IsUUID, Max, MaxLength, Min } from "class-validator";
 import { OrderStatus } from "../../common/order.enum";
 
 export class OpenOrderDto {
@@ -15,7 +15,7 @@ export class AddItemDto {
     menuItemId!: string;
     
     @IsString()
-    @Max(30)
+    @MaxLength(60)
     name!:string;
 
     @Type(() => Number)
@@ -24,7 +24,7 @@ export class AddItemDto {
     quantity!: number;
 
     @IsString()
-    @Max(50)
+    @MaxLength(100)
     notes?: string;
 }
 

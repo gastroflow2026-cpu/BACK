@@ -13,6 +13,7 @@ import { AuthProvider, UserRole } from '../../common/user.enums';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { Reservation } from '../../reservations/entities/reservation.entity';
 import { Notification } from '../../notification/entities/notification.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity({
   name: 'USERS',
@@ -101,6 +102,9 @@ export class User {
   
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservations!: Reservation[];
+
+  @OneToMany(() => Order, (order) => order.waiter)
+  orders!: Order[];
 
   @CreateDateColumn()
   created_at!: Date;

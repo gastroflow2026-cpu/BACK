@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Restaurant } from './entities/restaurant.entity';
 import { UpdateRestaurantDto } from './dto/restaurant.dto';
+import { NotificationsService } from '../notification/notification.service';
 
 export const restaurantsSeed = [
   {
@@ -18,27 +19,31 @@ export const restaurantsSeed = [
     address: 'Av. Santa Fe 1234, Palermo',
     city: 'Buenos Aires',
     country: 'Argentina',
-    description: "Pastas artesanales y ambiente romano.",
+    description: 'Pastas artesanales y ambiente romano.',
     category: 'Italiana',
     rating: 0,
-    image_url: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=800&auto=format&fit=crop",
-    about: "La Bella Vita ofrece una experiencia italiana auténtica en el corazón de Palermo. Con pastas amasadas a mano y recetas transmitidas por generaciones, cada plato es un viaje a las raíces de Italia.",
+    image_url:
+      'https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=800&auto=format&fit=crop',
+    about:
+      'La Bella Vita ofrece una experiencia italiana auténtica en el corazón de Palermo. Con pastas amasadas a mano y recetas transmitidas por generaciones, cada plato es un viaje a las raíces de Italia.',
     is_active: true,
   },
   {
     id: '22222222-2222-2222-2222-222222222222',
-    name: "Sushi Master",
+    name: 'Sushi Master',
     slug: 'sushi-master',
     phone: '+54 11 5678-0000',
     email: 'contacto@sushimaster.com',
     address: 'Av. Corrientes 5678, Recoleta',
     city: 'Buenos Aires',
     country: 'Argentina',
-    description: "Sabor de Tokyo con toques locales.",
+    description: 'Sabor de Tokyo con toques locales.',
     category: 'Japonesa',
     rating: 4.8,
-    image_url: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=800&auto=format&fit=crop",
-    about: "Sushi Master ofrece una experiencia japonesa auténtica en el corazón de Recoleta. Con ingredientes frescos y técnicas tradicionales, cada plato es un viaje a las raíces de Japón.",
+    image_url:
+      'https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=800&auto=format&fit=crop',
+    about:
+      'Sushi Master ofrece una experiencia japonesa auténtica en el corazón de Recoleta. Con ingredientes frescos y técnicas tradicionales, cada plato es un viaje a las raíces de Japón.',
     is_active: true,
   },
   {
@@ -53,8 +58,10 @@ export const restaurantsSeed = [
     country: 'Argentina',
     category: 'Parrilla',
     rating: 4.7,
-    image_url: 'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?q=80&w=800&auto=format&fit=crop',
-    about: 'Selección de cortes premium cocinados a las brasas, acompañados de los mejores vinos de nuestra cava.',
+    image_url:
+      'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?q=80&w=800&auto=format&fit=crop',
+    about:
+      'Selección de cortes premium cocinados a las brasas, acompañados de los mejores vinos de nuestra cava.',
     is_active: true,
   },
   {
@@ -69,8 +76,10 @@ export const restaurantsSeed = [
     country: 'Argentina',
     category: 'Hamburguesas',
     rating: 4.5,
-    image_url: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800&auto=format&fit=crop',
-    about: 'El paraíso de los amantes de la carne entre dos panes. Pan de papa casero y blends de carne madurada.',
+    image_url:
+      'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800&auto=format&fit=crop',
+    about:
+      'El paraíso de los amantes de la carne entre dos panes. Pan de papa casero y blends de carne madurada.',
     is_active: true,
   },
   {
@@ -85,8 +94,10 @@ export const restaurantsSeed = [
     country: 'Argentina',
     category: 'Saludable',
     rating: 4.6,
-    image_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop',
-    about: 'Propuestas frescas, estacionales y nutritivas para disfrutar de una comida equilibrada sin perder el sabor.',
+    image_url:
+      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop',
+    about:
+      'Propuestas frescas, estacionales y nutritivas para disfrutar de una comida equilibrada sin perder el sabor.',
     is_active: true,
   },
   {
@@ -101,10 +112,12 @@ export const restaurantsSeed = [
     country: 'Argentina',
     category: 'Mexicana',
     rating: 4.8,
-    image_url: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=800&auto=format&fit=crop',
-    about: 'Auténtica comida callejera de México: tacos al pastor, cochinita pibil y margaritas artesanales.',
+    image_url:
+      'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=800&auto=format&fit=crop',
+    about:
+      'Auténtica comida callejera de México: tacos al pastor, cochinita pibil y margaritas artesanales.',
     is_active: true,
-  }
+  },
 ];
 
 @Injectable()
@@ -112,9 +125,10 @@ export class RestaurantService {
   constructor(
     @InjectRepository(Restaurant)
     private readonly restaurantRepository: Repository<Restaurant>,
+
+    private readonly notificationService: NotificationsService,
   ) {}
 
-  
   //* Obtener restaurante del usuario autenticado
   async getProfile(restaurantId?: string): Promise<Restaurant> {
     const restaurant = await this.findRestaurantById(restaurantId);
@@ -205,23 +219,23 @@ export class RestaurantService {
   }
 
   // restaurants.seed.ts
-async seedRestaurants() {
-  const existing = await this.restaurantRepository.count();
-  if (existing > 0) throw new BadRequestException('Ya existen restaurantes cargados');
+  async seedRestaurants() {
+    const existing = await this.restaurantRepository.count();
+    if (existing > 0)
+      throw new BadRequestException('Ya existen restaurantes cargados');
 
-  for (const r of restaurantsSeed) {
-    await this.restaurantRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Restaurant)
-      .values(r)
-      .execute();
+    for (const r of restaurantsSeed) {
+      await this.restaurantRepository
+        .createQueryBuilder()
+        .insert()
+        .into(Restaurant)
+        .values(r)
+        .execute();
+    }
+
+    return {
+      message: 'Seed de restaurantes creado correctamente',
+      restaurantsCreated: restaurantsSeed.length,
+    };
   }
-
-  return {
-    message: 'Seed de restaurantes creado correctamente',
-    restaurantsCreated: restaurantsSeed.length,
-  };
-}
-
 }

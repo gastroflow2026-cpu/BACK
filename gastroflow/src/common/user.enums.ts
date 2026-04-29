@@ -4,10 +4,10 @@ export enum UserRole {
   CHEF = 'chef',
   CASHIER = 'cashier',
   CUSTOMER = 'customer',
-  SUPER_ADMIN = 'super_admin'
+  SUPER_ADMIN = 'super_admin',
 }
 
 export enum AuthProvider {
   LOCAL_AUTH = 'local_auth',
-  GOOGLE_AUTH = 'google_auth'
+  GOOGLE_AUTH = 'google_auth',
 }

@@ -63,7 +63,6 @@ export class RestaurantTables {
   @OneToMany(() => Order, (order) => order.table)
   orders!: Order[];
 
-
   @CreateDateColumn()
   created_at!: Date;
 

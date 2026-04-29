@@ -143,20 +143,6 @@ export class LoginUserDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Password no puede estar vacio' })
-  @MinLength(8)
-  @MaxLength(15)
-  @IsStrongPassword(
-    {
-      minLowercase: 1,
-      minUppercase: 1,
-      minNumbers: 1,
-      minSymbols: 1,
-    },
-    {
-      message:
-        'Contraseña con al  menos una mayuscula, una minuscula, un numero y un caracater especial',
-    },
-  )
   @IsString()
   @ApiProperty({
     description:

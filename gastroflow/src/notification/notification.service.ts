@@ -11,6 +11,12 @@ import { User } from '../users/entities/user.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { NotificationStatus } from './enums/notification-status.enum';
 import { NotificationChannel } from './enums/notification-channel.enum';
+import { MailService } from '../mail/mail.service';
+import {
+  NotificationLog,
+  NotificationLogStatus,
+  NotificationLogType,
+} from './entities/notification-log.entity';
 
 @Injectable()
 export class NotificationsService {
@@ -23,6 +29,11 @@ export class NotificationsService {
 
     @InjectRepository(Restaurant)
     private readonly restaurantsRepository: Repository<Restaurant>,
+
+    @InjectRepository(NotificationLog)
+    private readonly notificationLogRepository: Repository<NotificationLog>,
+
+    private readonly mailService: MailService,
   ) {}
 
   async create(
@@ -114,5 +125,47 @@ export class NotificationsService {
     notification.status = NotificationStatus.FAILED;
 
     return await this.notificationsRepository.save(notification);
+  }
+
+  async sendRestaurantApprovedNotification(
+    email: string,
+    restaurantId: string,
+    restaurantName?: string,
+  ): Promise<void> {
+    const log = this.notificationLogRepository.create({
+      type: NotificationLogType.RESTAURANT_APPROVED,
+      target_id: restaurantId,
+      recipient_email: email,
+      scheduled_for: new Date(),
+      status: NotificationLogStatus.PENDING,
+    });
+
+    try {
+      await this.notificationLogRepository.save(log);
+
+      const restaurantText = restaurantName
+        ? `El restaurante ${restaurantName} ha sido validado exitosamente.`
+        : 'Tu restaurante ha sido validado exitosamente.';
+
+      await this.mailService.sendGenericNotification(
+        email,
+        '¡Tu restaurante ha sido aprobado en GastroFlow!',
+        `${restaurantText} Ya puedes activar tu suscripción básica o premium en GastroFlow.`,
+      );
+
+      log.status = NotificationLogStatus.SENT;
+      log.sent_at = new Date();
+      log.error_message = null;
+      log.next_retry_at = null;
+
+      await this.notificationLogRepository.save(log);
+    } catch (error) {
+      log.attempts += 1;
+      log.status = NotificationLogStatus.FAILED;
+      log.error_message =
+        error instanceof Error ? error.message : 'Unknown error';
+
+      await this.notificationLogRepository.save(log);
+    }
   }
 }

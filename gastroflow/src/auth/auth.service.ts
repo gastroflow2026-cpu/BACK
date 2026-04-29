@@ -18,6 +18,7 @@ import {
 } from './dto/owner-auth.dto';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { DataSource } from 'typeorm';
+import { RestaurantVerificationStatus } from '../common/restaurant-verification-status.enum';
 
 @Injectable()
 export class AuthService {
@@ -99,7 +100,8 @@ export class AuthService {
     const { email, password, ...ownerData } = newOwnerData;
 
     const normalizedEmail = email.trim().toLowerCase();
-    const foundUser = await this.usersRepository.getUserByEmail(normalizedEmail);
+    const foundUser =
+      await this.usersRepository.getUserByEmail(normalizedEmail);
 
     if (foundUser) {
       throw new BadRequestException('El email ya esta registrado');
@@ -123,13 +125,18 @@ export class AuthService {
     if (!dbUser) {
       throw new NotFoundException('Email o passwords incorrectos');
     }
+
     if (dbUser.auth_provider === AuthProvider.GOOGLE_AUTH) {
       throw new BadRequestException(
         'Este correo fue registrado con Google. Inicia sesion con Google',
       );
     }
 
-    const isPasswordValid = await bcrypt.compare(password, dbUser.password_hash);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      dbUser.password_hash,
+    );
+
     if (!isPasswordValid) {
       throw new BadRequestException('Email o passwords incorrectos');
     }
@@ -137,6 +144,49 @@ export class AuthService {
     if (dbUser.role !== UserRole.REST_ADMIN) {
       throw new UnauthorizedException(
         'Este usuario no tiene permisos de administrador del restaurante',
+      );
+    }
+
+    if (!dbUser.is_active) {
+      throw new UnauthorizedException(
+        'La cuenta de restaurante esta desactivada',
+      );
+    }
+
+    return this.buildAuthResponse(dbUser);
+  }
+
+  async signInPlatformAdmin(email: string, password: string) {
+    const dbUser = await this.usersRepository.getUserByEmail(email);
+
+    if (!dbUser) {
+      throw new NotFoundException('Email o password incorrectos');
+    }
+
+    if (dbUser.auth_provider === AuthProvider.GOOGLE_AUTH) {
+      throw new BadRequestException(
+        'Este correo fue registrado con Google. Inicia sesion con Google',
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      dbUser.password_hash,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Email o password incorrectos');
+    }
+
+    if (dbUser.role !== UserRole.SUPER_ADMIN) {
+      throw new UnauthorizedException(
+        'Este usuario no tiene permisos de plataforma',
+      );
+    }
+
+    if (!dbUser.is_active) {
+      throw new UnauthorizedException(
+        'La cuenta de plataforma esta desactivada',
       );
     }
 
@@ -153,7 +203,9 @@ export class AuthService {
       const normalizedRestaurantEmail = restaurantData.email
         ?.trim()
         .toLowerCase();
-      const normalizedRestaurantSlug = restaurantData.slug?.trim().toLowerCase();
+      const normalizedRestaurantSlug = restaurantData.slug
+        ?.trim()
+        .toLowerCase();
       const restaurantName = restaurantData.name?.trim();
 
       const owner = await userRepository.findOneBy({ id: userId });
@@ -174,9 +226,7 @@ export class AuthService {
       }
 
       if (!restaurantName) {
-        throw new BadRequestException(
-          'El nombre del restaurante es requerido',
-        );
+        throw new BadRequestException('El nombre del restaurante es requerido');
       }
 
       if (normalizedRestaurantSlug) {
@@ -184,7 +234,9 @@ export class AuthService {
           slug: normalizedRestaurantSlug,
         });
         if (slugInUse) {
-          throw new BadRequestException('El slug del restaurante ya esta en uso');
+          throw new BadRequestException(
+            'El slug del restaurante ya esta en uso',
+          );
         }
       }
 
@@ -204,7 +256,11 @@ export class AuthService {
         name: restaurantName,
         slug: normalizedRestaurantSlug,
         email: normalizedRestaurantEmail,
-        is_active: restaurantData.is_active ?? true,
+        is_active: false,
+        verification_status: RestaurantVerificationStatus.PENDING,
+        verification_notes: null,
+        verified_at: null,
+        verified_by_user_id: null,
       });
 
       const savedRestaurant = await restaurantRepository.save(restaurant);
@@ -217,49 +273,49 @@ export class AuthService {
   }
 
   async validateGoogleUser(
-  googleUser: CreateGoogleUserDto,
-  intent: 'login' | 'register' = 'login',
-): Promise<{ user: User; isNewUser: boolean }> {
-  const normalizedEmail = googleUser.email.trim().toLowerCase();
+    googleUser: CreateGoogleUserDto,
+    intent: 'login' | 'register' = 'login',
+  ): Promise<{ user: User; isNewUser: boolean }> {
+    const normalizedEmail = googleUser.email.trim().toLowerCase();
 
-  const existingUser =
-    await this.usersRepository.getUserByEmail(normalizedEmail);
+    const existingUser =
+      await this.usersRepository.getUserByEmail(normalizedEmail);
 
-  console.log('[AuthService.validateGoogleUser]', {
-    normalizedEmail,
-    intent,
-    found: !!existingUser,
-    auth_provider: existingUser?.auth_provider,
-  });
+    console.log('[AuthService.validateGoogleUser]', {
+      normalizedEmail,
+      intent,
+      found: !!existingUser,
+      auth_provider: existingUser?.auth_provider,
+    });
 
-  if (existingUser) {
-    if (existingUser.auth_provider !== AuthProvider.GOOGLE_AUTH) {
-      throw new BadRequestException('provider_conflict');
+    if (existingUser) {
+      if (existingUser.auth_provider !== AuthProvider.GOOGLE_AUTH) {
+        throw new BadRequestException('provider_conflict');
+      }
+
+      if (intent === 'register') {
+        throw new BadRequestException('google_account_exists');
+      }
+
+      return { user: existingUser, isNewUser: false };
     }
 
-    if (intent === 'register') {
-      throw new BadRequestException('google_account_exists');
+    await this.usersRepository.createUser({
+      ...googleUser,
+      email: normalizedEmail,
+      auth_provider: AuthProvider.GOOGLE_AUTH,
+    });
+
+    const createdUser = await this.usersRepository.getUserByEmail(
+      googleUser.email,
+    );
+
+    if (!createdUser) {
+      throw new UnauthorizedException('No se pudo crear el usuario de Google');
     }
 
-    return { user: existingUser, isNewUser: false };
+    return { user: createdUser, isNewUser: true }; // <-- fix
   }
-
-  await this.usersRepository.createUser({
-    ...googleUser,
-    email: normalizedEmail,
-    auth_provider: AuthProvider.GOOGLE_AUTH,
-  });
-
-  const createdUser = await this.usersRepository.getUserByEmail(
-    googleUser.email,
-  );
-
-  if (!createdUser) {
-    throw new UnauthorizedException('No se pudo crear el usuario de Google');
-  }
-
-  return { user: createdUser, isNewUser: true };  // <-- fix
-}
 
   private assignRoles(user: User): UserRole[] {
     const roles: UserRole[] = [user.role];
@@ -296,7 +352,8 @@ export class AuthService {
 
   private buildAuthResponse(user: User) {
     const roles = this.assignRoles(user);
-    const requiresRestaurantOnboarding = !user.restaurant_id;
+    const requiresRestaurantOnboarding =
+      user.role === UserRole.REST_ADMIN && !user.restaurant_id;
     const payload = {
       id: user.id,
       name: user.first_name,

@@ -217,6 +217,31 @@ export class AuthController {
     );
   }
 
+  @HttpCode(200)
+  @Post('platform/signin')
+  @ApiOperation({
+    summary: 'Inicio de sesion del administrador de plataforma',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Inicio de sesion exitoso del administrador de plataforma',
+    type: OwnerAuthResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'El usuario no tiene permisos de plataforma',
+  })
+  @ApiBody({
+    type: LoginUserDto,
+    description: 'Credenciales del administrador de plataforma',
+  })
+  signInPlatformAdmin(@Body() userData: LoginUserDto) {
+    return this.authService.signInPlatformAdmin(
+      userData.email,
+      userData.password,
+    );
+  }
+
   @HttpCode(201)
   @Post('owner/onboarding')
   @UseGuards(AuthGuard, RolesGuard)

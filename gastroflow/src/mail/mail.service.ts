@@ -16,7 +16,7 @@ interface SendTemplateMailOptions {
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  constructor(private readonly mailerService: MailerService) { }
+  constructor(private readonly mailerService: MailerService) {}
 
   async sendTemplateMail({
     to,
@@ -104,8 +104,11 @@ export class MailService {
     });
   }
 
-
-  async sendPasswordResetEmail(to: string, name: string, token: string): Promise<void> {
+  async sendPasswordResetEmail(
+    to: string,
+    name: string,
+    token: string,
+  ): Promise<void> {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     await this.sendTemplateMail({
       to,
@@ -114,7 +117,6 @@ export class MailService {
       context: { name, resetLink },
     });
   }
-
 
   async sendReservationCancelledEmail(data: {
     to: string;
@@ -126,6 +128,24 @@ export class MailService {
       template: 'reservation-cancelled',
       context: {
         name: data.name,
+      },
+    });
+  }
+
+  async sendPaymentConfirmationEmail(data: {
+    to: string;
+    name: string;
+    restaurantName: string;
+    amount: number;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Pago confirmado',
+      template: 'payment-confirmation',
+      context: {
+        name: data.name,
+        restaurantName: data.restaurantName,
+        amount: data.amount,
       },
     });
   }
