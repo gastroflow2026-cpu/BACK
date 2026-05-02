@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { RestaurantTables } from "./entities/restaurant_table.entity";
-import { LessThan, MoreThan, Repository } from "typeorm";
+import { In, LessThan, MoreThan, Repository } from "typeorm";
 import { RestaurantTableStatus } from "../common/restaurant_table.enum";
 import { Restaurant } from "../restaurants/entities/restaurant.entity";
 import { CreateTableDto } from "./dto/restaurant_table.dto";
@@ -39,18 +39,18 @@ export class RestaurantTablesRepository{
 
     if (!allTables.length) throw new NotFoundException('No se encontraron mesas para este restaurante');
 
-    const startTime = new Date(`${date}T${time}:00`);
+    const startTime = new Date(`${date}T${time}:00.000Z`);
     const endTime = new Date(startTime.getTime() + (2 * 60 + 15) * 60 * 1000);
 
     const occupiedTables = await this.reservationsRepository.find({
-        where: {
-            restaurant: { id: restaurantId },
-            status: ReservationStatus.CONFIRMED,
-            start_time: LessThan(endTime),
-            end_time: MoreThan(startTime),
-        },
-        relations: ['table'],
-    });
+    where: {
+        restaurant: { id: restaurantId },
+        status: In([ReservationStatus.CONFIRMED, ReservationStatus.PENDING]), // ← agregá PENDING
+        start_time: LessThan(endTime),
+        end_time: MoreThan(startTime),
+    },
+    relations: ['table'],
+  });
 
     const occupiedIds = occupiedTables.map(r => r.table.id);
 
@@ -72,7 +72,7 @@ export class RestaurantTablesRepository{
 
     if (!table) throw new NotFoundException('Mesa no encontrada');
     if (!table.is_active) throw new BadRequestException('La mesa no está activa');
-    if (table.status === status) throw new BadRequestException(`La mesa ya está en estado ${status}`);
+    if (table.status === status) return table;
 
     table.status = status;
     return this.restaurantsTablesRepository.save(table);

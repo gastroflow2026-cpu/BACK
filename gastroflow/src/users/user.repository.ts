@@ -6,12 +6,15 @@ import { ResetPasswordDto, UpdateUserDto } from "./dto/user.dto";
 import * as bcrypt from 'bcrypt';
 import { UserRole } from "../common/user.enums";
 import { PasswordResetToken } from "./entities/password-reset-token.entity";
+import { Reservation } from "../reservations/entities/reservation.entity";
 
 @Injectable()
 export class UsersRepository {
     constructor(
         @InjectRepository(User) private ormUsersRepository: Repository<User>,
-        @InjectRepository(PasswordResetToken) private tokenRepository: Repository<PasswordResetToken>) {}
+        @InjectRepository(PasswordResetToken) private tokenRepository: Repository<PasswordResetToken>,
+        @InjectRepository(Reservation) private reservationsRepository: Repository<Reservation>,
+    ) {}
 
     async getAllUsers(page: number, limit: number): Promise<Omit<User, 'password_hash'>[]> {
         const skip = (page - 1) * limit;
@@ -21,6 +24,14 @@ export class UsersRepository {
         });
 
         return allUsers.map(({ password_hash, ...userNoPassword }) => userNoPassword);
+    }
+
+    async getReservationsByUser(userId: string) {
+        return this.reservationsRepository.find({
+            where: { user: { id: userId } },
+            relations: ['restaurant', 'table', 'payment'],
+            order: { reservation_date: 'DESC' },
+        });
     }
 
     async getEmployeesByRestaurantId(restaurantId: string): Promise<User[]> {

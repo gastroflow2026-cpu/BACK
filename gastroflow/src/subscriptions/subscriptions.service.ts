@@ -47,6 +47,20 @@ export class SubscriptionsService {
     return await this.subscriptionsRepository.save(subscription);
   }
 
+  async findByRestaurant(restaurantId: string): Promise<Subscription | null> {
+    const subscription = await this.subscriptionsRepository.findOne({
+        where: {
+            restaurant: { id: restaurantId },
+            status: SubscriptionStatus.ACTIVE,
+        },
+        relations: ['restaurant'],
+        order: { created_at: 'DESC' },
+    });
+
+    if (!subscription) throw new NotFoundException('No hay suscripción activa');
+    return subscription;
+}
+
   async findAll(): Promise<Subscription[]> {
     return await this.subscriptionsRepository.find({
       relations: ['restaurant'],

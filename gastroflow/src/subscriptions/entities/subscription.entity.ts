@@ -52,6 +52,9 @@ export class Subscription {
   @Column({ type: 'boolean', default: true })
   auto_renew!: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  stripe_subscription_id?: string;
+
   @CreateDateColumn()
   created_at!: Date;
 

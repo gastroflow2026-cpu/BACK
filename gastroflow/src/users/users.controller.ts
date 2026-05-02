@@ -40,6 +40,23 @@ export class UsersController {
     return this.usersService.getAllUsers(validPage, validLimit);
   }
 
+  @Get(':id/reservations')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Obtener reservas de un usuario' })
+  async getUserReservations(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: any,
+  ) {
+    const requesterId = req.user.id;
+    const isAdmin = req.user.roles?.includes(UserRole.SUPER_ADMIN) ||
+                    req.user.roles?.includes(UserRole.REST_ADMIN);
+    if (!isAdmin && requesterId !== id) {
+        throw new ForbiddenException('No tienes permiso para ver estas reservas');
+    }
+    return this.usersService.getReservationsByUser(id);
+  }
+
   @Get(':id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)

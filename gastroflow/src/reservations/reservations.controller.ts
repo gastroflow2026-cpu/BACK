@@ -26,7 +26,7 @@ export class ReservationsController {
     async AllReservations(@Param('restaurantId', ParseUUIDPipe) restaurantId: string, ){
         return await this.reservationsService.AllReservations(restaurantId);
     } 
-
+    
     @UseGuards(AuthGuard, RolesGuard)
     @Role(UserRole.CUSTOMER)
     @ApiOperation({ summary: 'Crear una nueva reserva' })

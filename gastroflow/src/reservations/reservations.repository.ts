@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, MoreThan, Repository } from 'typeorm';
+import { In, LessThan, MoreThan, Repository } from 'typeorm';
 
 import { Reservation } from './entities/reservation.entity';
 import { newReservation } from './dto/reservation.dto';
@@ -63,6 +63,9 @@ export class ReservationsRepository {
     reservationData: newReservation,
     userId: string,
   ): Promise<CreateReservationResult> {
+    const startTime = new Date(reservationData.start_time);
+    const endTime = new Date(startTime.getTime() + (2 * 60 + 15) * 60 * 1000);
+
     const restaurant = await this.restaurantsRepository.findOne({
       where: { id: restaurantId },
     });
@@ -89,22 +92,16 @@ export class ReservationsRepository {
       throw new NotFoundException('Mesa no encontrada');
     }
 
-    const tableNotAvailable = await this.reservationsRepository.findOne({
-      where: {
-        restaurant: { id: restaurantId },
-        table: { id: table_id },
-        status: ReservationStatus.CONFIRMED,
-        start_time: LessThan(
-          new Date(new Date(start_time).getTime() + (2 * 60 + 15) * 60 * 1000),
-        ),
-        end_time: MoreThan(new Date(start_time)),
-      },
-      relations: ['table'],
+     const conflict = await this.reservationsRepository.findOne({
+        where: {
+            table: { id: reservationData.table_id },
+            status: In([ReservationStatus.CONFIRMED, ReservationStatus.PENDING]),
+            start_time: LessThan(endTime),
+            end_time: MoreThan(startTime),
+        },
     });
 
-    if (tableNotAvailable) {
-      throw new BadRequestException('Mesa no disponible');
-    }
+    if (conflict) throw new BadRequestException('La mesa ya está reservada en ese horario');
 
     const createReservation = this.reservationsRepository.create({
       ...reservationData,

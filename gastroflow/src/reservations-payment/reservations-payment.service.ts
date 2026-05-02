@@ -36,7 +36,7 @@ export class ReservationsPaymentService {
             payment_method_types: ['card'],
             mode: 'payment',
             success_url: 'https://front-gastroflow.onrender.com/success',
-            cancel_url: 'https://front-gastroflow.onrender.com',
+            cancel_url: 'https://front-gastroflow.onrender.com/cancel',
             metadata: {
                 reservation_id: reservationId,
             },
@@ -82,10 +82,8 @@ export class ReservationsPaymentService {
     }
 
 private async handleCheckoutCompleted(session: any) {
-    console.log('handleCheckoutCompleted ejecutado', session.metadata);
-    
     const reservationId = session.metadata?.reservation_id;
-    console.log('reservationId:', reservationId);
+    console.log('2. reservationId:', reservationId);
     
     if (!reservationId) {
         console.log('No hay reservationId en metadata');
@@ -97,13 +95,10 @@ private async handleCheckoutCompleted(session: any) {
             { id: reservationId },
             { status: ReservationStatus.CONFIRMED }
         );
-        console.log('Reserva actualizada');
-
         const reservation = await this.reservationsRepository.findOne({
             where: { id: reservationId },
             relations: ['restaurant', 'table'],
         });
-        console.log('Reserva encontrada:', reservation);
 
         if (!reservation) throw new NotFoundException('Reserva no encontrada');
 
@@ -112,17 +107,22 @@ private async handleCheckoutCompleted(session: any) {
             reservation.table.id,
             RestaurantTableStatus.RESERVED,
         );
-        console.log('Mesa actualizada');
 
-        await this.reservationsPaymentRepository.update(
-            { reservation: { id: reservationId } },
-            {
-                status: PaymentStatus.COMPLETED,
-                transaction_id: session.payment_intent as string,
-                paid_at: new Date(),
-            }
-        );
-        console.log('Pago actualizado');
+        const payment = await this.reservationsPaymentRepository
+        .createQueryBuilder('payment')
+        .where('payment.reservation_id = :reservationId', { reservationId })
+        .getOne();
+        if (!payment) {
+            console.error('Pago no encontrado para reservationId:', reservationId);
+            return;
+        }
+
+        payment.status = PaymentStatus.COMPLETED;
+        payment.transaction_id = session.payment_intent as string;
+        payment.paid_at = new Date();
+
+        const saved = await this.reservationsPaymentRepository.save(payment);
+        console.log('4. Pago guardado:', saved);
 
     } catch (error) {
         console.error('Error en handleCheckoutCompleted:', error);

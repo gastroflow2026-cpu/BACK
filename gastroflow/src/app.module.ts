@@ -19,6 +19,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { NotificationsModule } from './notification/notification.module';
 import { OrderModule } from './orders/order.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SubscriptionPaymentModule } from './subscriptions_payments/subscription_payment.module';
 import { RestaurantVerificationModule } from './restaurant-verification/restaurant-verification.module';
 import { PlatformModule } from './plataform/platform.module';
 import { ChatModule } from './chat/chat.module';
@@ -51,6 +52,7 @@ import { ChatModule } from './chat/chat.module';
     ReservationsModule,
     ReservationsPaymentModule,
     SubscriptionsModule,
+    SubscriptionPaymentModule,
     NotificationsModule,
     OrderModule,
     JwtModule.register({

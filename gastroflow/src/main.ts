@@ -9,6 +9,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true, bodyParser: false });
   app.use('/reservations-payment/webhook', express.raw({ type: 'application/json' }));
+   app.use('/subscriptions-payment/webhook',express.raw({ type: 'application/json' }));
   app.use(express.json()); 
   app.use(express.urlencoded({ extended: true }));
   

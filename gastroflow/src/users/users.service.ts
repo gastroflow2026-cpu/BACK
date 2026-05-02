@@ -35,6 +35,10 @@ export class UsersService {
     async getAllUsers(page: number, limit: number): Promise<Omit<User, 'password_hash'>[]> {
         return this.userRepository.getAllUsers(page, limit);
     }
+    
+    async getReservationsByUser(id: string) {
+        return await this.userRepository.getReservationsByUser(id);
+    }
 
     async getUserById(id: string) {
         return this.userRepository.getUserById(id)
