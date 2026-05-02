@@ -21,6 +21,7 @@ import { OrderModule } from './orders/order.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RestaurantVerificationModule } from './restaurant-verification/restaurant-verification.module';
 import { PlatformModule } from './plataform/platform.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { PlatformModule } from './plataform/platform.module';
     AuthModule,
     FileUploadModule,
     MenuModule,
+    ChatModule,
     RestaurantModule,
     MailModule,
     RestaurantTablesModule,
@@ -56,6 +58,7 @@ import { PlatformModule } from './plataform/platform.module';
       signOptions: { expiresIn: '60m' },
       secret: process.env.JWT_SECRET,
     }),
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

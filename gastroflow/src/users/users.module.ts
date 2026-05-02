@@ -12,6 +12,6 @@ import { MailModule } from '../mail/mail.module';
   imports: [TypeOrmModule.forFeature([User, PasswordResetToken]), MailModule],
   controllers: [UsersController, EmployeesController],
   providers: [UsersService, UsersRepository],
-  exports: [UsersRepository],
+  exports: [UsersRepository, UsersService],
 })
 export class UsersModule {}
