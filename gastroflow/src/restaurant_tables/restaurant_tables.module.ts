@@ -8,9 +8,11 @@ import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { Reservation } from '../reservations/entities/reservation.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([RestaurantTables, Restaurant, Reservation])],
-    controllers: [RestaurantTablesController],
-    providers: [RestaurantTablesService, RestaurantTablesRepository],
-    exports: [RestaurantTablesRepository]
+  imports: [
+    TypeOrmModule.forFeature([RestaurantTables, Restaurant, Reservation]),
+  ],
+  controllers: [RestaurantTablesController],
+  providers: [RestaurantTablesService, RestaurantTablesRepository],
+  exports: [RestaurantTablesRepository],
 })
 export class RestaurantTablesModule {}

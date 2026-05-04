@@ -8,10 +8,7 @@ import { NotificationsModule } from '../notification/notification.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Restaurant,
-      RestaurantTheme,
-    ]),
+    TypeOrmModule.forFeature([Restaurant, RestaurantTheme]),
     NotificationsModule,
   ],
   controllers: [RestaurantController],

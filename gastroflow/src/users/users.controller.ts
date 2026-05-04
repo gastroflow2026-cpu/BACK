@@ -1,26 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseUUIDPipe, Put, Req, ForbiddenException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  ParseUUIDPipe,
+  Put,
+  Req,
+  ForbiddenException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/Role.guard';
 import { Role } from '../decorators/roles.decorators';
 import { AuthGuard } from '../auth/guards/Auth.guard';
 import { UserRole } from '../common/user.enums';
-import { AdminResetPasswordDto, ConfirmPasswordResetDto, RequestPasswordResetDto, ResetPasswordDto, UpdateRoleDto, UpdateUserDto } from './dto/user.dto';
+import {
+  AdminResetPasswordDto,
+  ConfirmPasswordResetDto,
+  RequestPasswordResetDto,
+  ResetPasswordDto,
+  UpdateRoleDto,
+  UpdateUserDto,
+} from './dto/user.dto';
 import { GetUser } from '../decorators/get-user.decorator';
-
 
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-
   @ApiBearerAuth()
-  @Patch('updatepassword') 
+  @Patch('updatepassword')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Actualizar contraseña de usuario' })
-  async updatePassword(@GetUser('id') userId: string, @Body() dto: ResetPasswordDto) {
+  async updatePassword(
+    @GetUser('id') userId: string,
+    @Body() dto: ResetPasswordDto,
+  ) {
     return this.usersService.resetPassword(userId, dto);
   }
 
@@ -40,20 +67,36 @@ export class UsersController {
     return this.usersService.getAllUsers(validPage, validLimit);
   }
 
+  @Get(':id/reservations')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Obtener reservas de un usuario' })
+  async getUserReservations(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: any,
+  ) {
+    const requesterId = req.user.id;
+    const isAdmin =
+      req.user.roles?.includes(UserRole.SUPER_ADMIN) ||
+      req.user.roles?.includes(UserRole.REST_ADMIN);
+    if (!isAdmin && requesterId !== id) {
+      throw new ForbiddenException('No tienes permiso para ver estas reservas');
+    }
+    return this.usersService.getReservationsByUser(id);
+  }
+
   @Get(':id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtener usuario por ID' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-  getUserById(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Req() req: any,
-  ) {
+  getUserById(@Param('id', ParseUUIDPipe) id: string, @Req() req: any) {
     // solo el propio usuario o un admin puede ver el perfil
     const requesterId = req.user.id;
     const requesterRole = req.user.roles;
-    const isAdmin = requesterRole?.includes(UserRole.SUPER_ADMIN) || 
-                    requesterRole?.includes(UserRole.REST_ADMIN);
+    const isAdmin =
+      requesterRole?.includes(UserRole.SUPER_ADMIN) ||
+      requesterRole?.includes(UserRole.REST_ADMIN);
     if (!isAdmin && requesterId !== id) {
       throw new ForbiddenException('No tienes permiso para ver este usuario');
     }
@@ -72,7 +115,9 @@ export class UsersController {
     const requesterId = req.user.id;
     const isAdmin = req.user.roles?.includes(UserRole.SUPER_ADMIN);
     if (!isAdmin && requesterId !== id) {
-      throw new ForbiddenException('No tienes permiso para editar este usuario');
+      throw new ForbiddenException(
+        'No tienes permiso para editar este usuario',
+      );
     }
     return this.usersService.updateUser(id, dto);
   }
@@ -98,10 +143,7 @@ export class UsersController {
   @UseGuards(AuthGuard, RolesGuard)
   @Role(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Soft delete de usuario' })
-  deleteUser(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Req() req: any,
-  ) {
+  deleteUser(@Param('id', ParseUUIDPipe) id: string, @Req() req: any) {
     if (req.user.id === id) {
       throw new ForbiddenException('No puedes eliminarte a ti mismo');
     }
@@ -118,7 +160,7 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
-  @Patch(':id/resetpassword') 
+  @Patch(':id/resetpassword')
   @UseGuards(AuthGuard, RolesGuard)
   @Role(UserRole.SUPER_ADMIN, UserRole.REST_ADMIN)
   @ApiOperation({ summary: 'Resetear contraseña de usuario por super_admin' })
@@ -133,13 +175,12 @@ export class UsersController {
   @Post('password-reset/request')
   @ApiOperation({ summary: 'Solicitar reset de contraseña por email' })
   requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
-  return this.usersService.requestPasswordReset(dto);
+    return this.usersService.requestPasswordReset(dto);
   }
 
   @Post('password-reset/confirm')
   @ApiOperation({ summary: 'Confirmar reset con token y nueva contraseña' })
   confirmPasswordReset(@Body() dto: ConfirmPasswordResetDto) {
-  return this.usersService.confirmPasswordReset(dto);
+    return this.usersService.confirmPasswordReset(dto);
   }
-
 }

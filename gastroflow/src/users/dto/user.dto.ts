@@ -17,8 +17,11 @@ import {
 import { MatchPassword } from '../../decorators/matchPassword';
 import { AuthProvider, UserRole } from '../../common/user.enums';
 import { OmitType, PartialType, PickType } from '@nestjs/mapped-types';
-import { ApiHideProperty, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 
 export class CreateUserDto {
   @IsString({ message: 'Nombre debe ser un string' })
@@ -121,14 +124,18 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto extends PartialType(
-  OmitType(CreateUserDto, ['password', 'confirmPassword', 'role', 'auth_provider']),
+  OmitType(CreateUserDto, [
+    'password',
+    'confirmPassword',
+    'role',
+    'auth_provider',
+  ]),
 ) {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   @MaxLength(100)
   imgUrl?: string;
-
 }
 
 export class LoginUserDto {
@@ -150,7 +157,6 @@ export class LoginUserDto {
     example: 'Testpassword01!',
   })
   password!: string;
-
 }
 
 export class UpdateRoleDto {
@@ -160,7 +166,6 @@ export class UpdateRoleDto {
 }
 
 export class ResetPasswordDto {
-
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
@@ -225,7 +230,12 @@ export class ConfirmPasswordResetDto {
   @IsNotEmpty()
   @MinLength(8)
   @MaxLength(15)
-  @IsStrongPassword({ minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })
+  @IsStrongPassword({
+    minLowercase: 1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSymbols: 1,
+  })
   @ApiProperty({ example: 'NewPassword01!' })
   newPassword!: string;
 
@@ -234,5 +244,3 @@ export class ConfirmPasswordResetDto {
   @ApiProperty({ example: 'NewPassword01!' })
   confirmNewPassword!: string;
 }
-
-

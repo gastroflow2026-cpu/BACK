@@ -7,20 +7,30 @@ import * as express from 'express';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { rawBody: true, bodyParser: false });
-  app.use('/reservations-payment/webhook', express.raw({ type: 'application/json' }));
-  app.use(express.json()); 
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+    bodyParser: false,
+  });
+  app.use(
+    '/reservations-payment/webhook',
+    express.raw({ type: 'application/json' }),
+  );
+  app.use(
+    '/subscriptions-payment/webhook',
+    express.raw({ type: 'application/json' }),
+  );
+  app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  
+
   app.enableCors({
     origin: environment.FRONTEND_URL,
   });
 
   app.useGlobalPipes(
-  new ValidationPipe({
-    transform: true,
-  }),
-);
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('GastroFlow API')

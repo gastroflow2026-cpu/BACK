@@ -36,7 +36,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'entrada,italiano,bestseller',
     allergens: 'gluten',
     prep_time_minutes: 10,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Bruschetta_nu7c04.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Bruschetta_nu7c04.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 1,
@@ -49,7 +50,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'entrada,italiano,vegetariano',
     allergens: 'lacteos',
     prep_time_minutes: 8,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Caprese_hoapi0.jpg',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Caprese_hoapi0.jpg',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 2,
@@ -62,7 +64,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'entrada,italiano,res',
     allergens: 'lacteos',
     prep_time_minutes: 12,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Carpaccio_di_manzo_uahj1m.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Carpaccio_di_manzo_uahj1m.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 3,
@@ -75,7 +78,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'pasta,italiano,bestseller',
     allergens: 'gluten,lacteos',
     prep_time_minutes: 18,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776280896/Pasta_Carbonara_f2t7hg.jpg',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776280896/Pasta_Carbonara_f2t7hg.jpg',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 1,
@@ -88,7 +92,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'pasta,italiano,cremoso',
     allergens: 'gluten,lacteos',
     prep_time_minutes: 18,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Fettuccine_Alfredo_jlaed3.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Fettuccine_Alfredo_jlaed3.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 2,
@@ -101,7 +106,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'pasta,italiano,carne',
     allergens: 'gluten,lacteos',
     prep_time_minutes: 25,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Lasagna_Bolognese_snkbi9.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Lasagna_Bolognese_snkbi9.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 3,
@@ -114,7 +120,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'pizza,vegetariano',
     allergens: 'gluten,lacteos',
     prep_time_minutes: 20,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459102/Pizza_Margherita_pgop3d.jpg',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459102/Pizza_Margherita_pgop3d.jpg',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 1,
@@ -127,7 +134,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'pizza,pepperoni,italiano',
     allergens: 'gluten,lacteos',
     prep_time_minutes: 20,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459102/Pizza_Pepperoni_cnezox.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459102/Pizza_Pepperoni_cnezox.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 2,
@@ -140,7 +148,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'pizza,queso,vegetariano',
     allergens: 'gluten,lacteos',
     prep_time_minutes: 20,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459103/PIzza_Quattro_Formaggi_hrzjsl.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459103/PIzza_Quattro_Formaggi_hrzjsl.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 3,
@@ -153,7 +162,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'postre,cafe',
     allergens: 'lacteos,huevo,gluten',
     prep_time_minutes: 8,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459103/Tiramis%C3%BA_dtt2ns.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459103/Tiramis%C3%BA_dtt2ns.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 1,
@@ -166,7 +176,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'postre,italiano,cremoso',
     allergens: 'lacteos',
     prep_time_minutes: 7,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Panna_Cotta_doastn.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459101/Panna_Cotta_doastn.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 2,
@@ -179,7 +190,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'postre,helado,italiano',
     allergens: 'lacteos',
     prep_time_minutes: 5,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Gelato_Artesanal_pgxt0r.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Gelato_Artesanal_pgxt0r.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 3,
@@ -192,7 +204,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'bebida,refrescante',
     allergens: '',
     prep_time_minutes: 5,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Limonada_fresca_de_la_casa_ksbblr.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459100/Limonada_fresca_de_la_casa_ksbblr.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 1,
@@ -205,7 +218,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'bebida,cafe,italiano',
     allergens: '',
     prep_time_minutes: 4,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Espresso_pnp5ga.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459099/Espresso_pnp5ga.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 2,
@@ -218,7 +232,8 @@ const BELLA_VITA_ITEMS = [
     tags: 'bebida,vino,italiano',
     allergens: 'sulfitos',
     prep_time_minutes: 3,
-    image_url: 'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459792/Vino_Tinto_yqcfrm.png',
+    image_url:
+      'https://res.cloudinary.com/dgzp5pfmp/image/upload/v1776459792/Vino_Tinto_yqcfrm.png',
     is_available: true,
     status: MenuItemStatus.AVAILABLE,
     display_order: 3,
@@ -242,18 +257,27 @@ export class MenuService {
 
       if (!existingItem) continue;
 
-      const needsRepair = !existingItem.image_url || !existingItem.image_url.trim() || existingItem.image_url === 'undefined';
+      const needsRepair =
+        !existingItem.image_url ||
+        !existingItem.image_url.trim() ||
+        existingItem.image_url === 'undefined';
       if (!needsRepair) continue;
 
       existingItem.image_url = seedItem.image_url;
-      existingItem.description = existingItem.description || seedItem.description;
+      existingItem.description =
+        existingItem.description || seedItem.description;
       existingItem.price = existingItem.price || seedItem.price;
       existingItem.tags = existingItem.tags || seedItem.tags;
       existingItem.allergens = existingItem.allergens ?? seedItem.allergens;
-      existingItem.prep_time_minutes = existingItem.prep_time_minutes ?? seedItem.prep_time_minutes;
+      existingItem.prep_time_minutes =
+        existingItem.prep_time_minutes ?? seedItem.prep_time_minutes;
       existingItem.status = existingItem.status || seedItem.status;
-      existingItem.is_available = typeof existingItem.is_available === 'boolean' ? existingItem.is_available : seedItem.is_available;
-      existingItem.display_order = existingItem.display_order ?? seedItem.display_order;
+      existingItem.is_available =
+        typeof existingItem.is_available === 'boolean'
+          ? existingItem.is_available
+          : seedItem.is_available;
+      existingItem.display_order =
+        existingItem.display_order ?? seedItem.display_order;
 
       await this.menuItemRepository.save(existingItem);
     }
@@ -330,12 +354,16 @@ export class MenuService {
   // =========================
   // CATEGORY METHODS
   // =========================
-  async createCategory(dto: CreateMenuCategoryDto, restaurantId: string): Promise<MenuCategory> {
+  async createCategory(
+    dto: CreateMenuCategoryDto,
+    restaurantId: string,
+  ): Promise<MenuCategory> {
     const existing = await this.menuCategoryRepository.findOne({
       where: { restaurant_id: restaurantId, name: dto.name },
     });
 
-    if (existing) throw new BadRequestException('Ya existe una categoría con ese nombre.');
+    if (existing)
+      throw new BadRequestException('Ya existe una categoría con ese nombre.');
 
     const category = this.menuCategoryRepository.create({
       ...dto,
@@ -353,24 +381,35 @@ export class MenuService {
     });
   }
 
-  async findOneCategory(id: string, restaurantId: string): Promise<MenuCategory> {
+  async findOneCategory(
+    id: string,
+    restaurantId: string,
+  ): Promise<MenuCategory> {
     const category = await this.menuCategoryRepository.findOne({
       where: { id, restaurant_id: restaurantId },
     });
 
-    if (!category) throw new NotFoundException(`No se encontró la categoría con id ${id}`);
+    if (!category)
+      throw new NotFoundException(`No se encontró la categoría con id ${id}`);
 
     return category;
   }
 
-  async updateCategory(id: string, dto: UpdateMenuCategoryDto, restaurantId: string): Promise<MenuCategory> {
+  async updateCategory(
+    id: string,
+    dto: UpdateMenuCategoryDto,
+    restaurantId: string,
+  ): Promise<MenuCategory> {
     const category = await this.findOneCategory(id, restaurantId);
 
     if (dto.name && dto.name !== category.name) {
       const existing = await this.menuCategoryRepository.findOne({
         where: { restaurant_id: restaurantId, name: dto.name },
       });
-      if (existing) throw new BadRequestException('Ya existe una categoría con ese nombre.');
+      if (existing)
+        throw new BadRequestException(
+          'Ya existe una categoría con ese nombre.',
+        );
     }
 
     Object.assign(category, dto);
@@ -398,12 +437,22 @@ export class MenuService {
   // =========================
   // ITEM METHODS
   // =========================
-  async createItem(dto: CreateMenuItemDto, restaurantId: string): Promise<MenuItem> {
+  async createItem(
+    dto: CreateMenuItemDto,
+    restaurantId: string,
+  ): Promise<MenuItem> {
     const category = await this.menuCategoryRepository.findOne({
-      where: { id: dto.category_id, restaurant_id: restaurantId, is_active: true },
+      where: {
+        id: dto.category_id,
+        restaurant_id: restaurantId,
+        is_active: true,
+      },
     });
 
-    if (!category) throw new BadRequestException('La categoría enviada no existe o está inactiva.');
+    if (!category)
+      throw new BadRequestException(
+        'La categoría enviada no existe o está inactiva.',
+      );
 
     const item = this.menuItemRepository.create({
       ...dto,
@@ -411,7 +460,8 @@ export class MenuService {
       category_id: category.id,
       price: String(dto.price),
       status: dto.status ?? MenuItemStatus.AVAILABLE,
-      is_available: dto.status != null ? dto.status === MenuItemStatus.AVAILABLE : true,
+      is_available:
+        dto.status != null ? dto.status === MenuItemStatus.AVAILABLE : true,
     });
 
     return await this.menuItemRepository.save(item);
@@ -421,10 +471,14 @@ export class MenuService {
     const qb = this.menuItemRepository
       .createQueryBuilder('item')
       .leftJoinAndSelect('item.category', 'category')
-      .where('item.restaurant_id = :restaurant_id', { restaurant_id: restaurantId });
+      .where('item.restaurant_id = :restaurant_id', {
+        restaurant_id: restaurantId,
+      });
 
     if (query.category_id) {
-      qb.andWhere('item.category_id = :category_id', { category_id: query.category_id });
+      qb.andWhere('item.category_id = :category_id', {
+        category_id: query.category_id,
+      });
     }
 
     if (query.status) {
@@ -432,16 +486,22 @@ export class MenuService {
     }
 
     if (query.tag) {
-      qb.andWhere('LOWER(item.tags) LIKE LOWER(:tag)', { tag: `%${query.tag}%` });
+      qb.andWhere('LOWER(item.tags) LIKE LOWER(:tag)', {
+        tag: `%${query.tag}%`,
+      });
     }
 
     if (query.allergen) {
-      qb.andWhere('LOWER(item.allergens) LIKE LOWER(:allergen)', { allergen: `%${query.allergen}%` });
+      qb.andWhere('LOWER(item.allergens) LIKE LOWER(:allergen)', {
+        allergen: `%${query.allergen}%`,
+      });
     }
 
     if (query.view === 'public') {
       qb.andWhere('item.is_available = true');
-      qb.andWhere('item.status = :availableStatus', { availableStatus: MenuItemStatus.AVAILABLE });
+      qb.andWhere('item.status = :availableStatus', {
+        availableStatus: MenuItemStatus.AVAILABLE,
+      });
       qb.andWhere('category.is_active = true');
     }
 
@@ -458,19 +518,31 @@ export class MenuService {
       relations: { category: true },
     });
 
-    if (!item) throw new NotFoundException(`No se encontró el platillo con id ${id}`);
+    if (!item)
+      throw new NotFoundException(`No se encontró el platillo con id ${id}`);
 
     return item;
   }
 
-  async updateItem(id: string, dto: UpdateMenuItemDto, restaurantId: string): Promise<MenuItem> {
+  async updateItem(
+    id: string,
+    dto: UpdateMenuItemDto,
+    restaurantId: string,
+  ): Promise<MenuItem> {
     const item = await this.findOneItem(id, restaurantId);
 
     if (dto.category_id) {
       const category = await this.menuCategoryRepository.findOne({
-        where: { id: dto.category_id, restaurant_id: restaurantId, is_active: true },
+        where: {
+          id: dto.category_id,
+          restaurant_id: restaurantId,
+          is_active: true,
+        },
       });
-      if (!category) throw new BadRequestException('La nueva categoría no existe o está inactiva.');
+      if (!category)
+        throw new BadRequestException(
+          'La nueva categoría no existe o está inactiva.',
+        );
       item.category_id = category.id;
       item.category = category;
     }
@@ -482,7 +554,11 @@ export class MenuService {
     return await this.menuItemRepository.save(item);
   }
 
-  async updateItemStatus(id: string, status: MenuItemStatus, restaurantId: string): Promise<MenuItem> {
+  async updateItemStatus(
+    id: string,
+    status: MenuItemStatus,
+    restaurantId: string,
+  ): Promise<MenuItem> {
     const item = await this.findOneItem(id, restaurantId);
     item.status = status;
     item.is_available = status === MenuItemStatus.AVAILABLE;
@@ -512,10 +588,22 @@ export class MenuService {
 
       if (category) {
         let changed = false;
-        if (category.description !== `Categoría ${cat.name}`) { category.description = `Categoría ${cat.name}`; changed = true; }
-        if (category.display_order !== cat.display_order) { category.display_order = cat.display_order; changed = true; }
-        if (category.is_active !== true) { category.is_active = true; changed = true; }
-        if (changed) { category = await this.menuCategoryRepository.save(category); categoriesUpdated++; }
+        if (category.description !== `Categoría ${cat.name}`) {
+          category.description = `Categoría ${cat.name}`;
+          changed = true;
+        }
+        if (category.display_order !== cat.display_order) {
+          category.display_order = cat.display_order;
+          changed = true;
+        }
+        if (category.is_active !== true) {
+          category.is_active = true;
+          changed = true;
+        }
+        if (changed) {
+          category = await this.menuCategoryRepository.save(category);
+          categoriesUpdated++;
+        }
       } else {
         category = this.menuCategoryRepository.create({
           restaurant_id: restaurantId,
@@ -541,17 +629,51 @@ export class MenuService {
 
       if (item) {
         let changed = false;
-        if (item.category_id !== category.id) { item.category_id = category.id; item.category = category; changed = true; }
-        if (item.description !== seedItem.description) { item.description = seedItem.description; changed = true; }
-        if (String(item.price) !== String(seedItem.price)) { item.price = String(seedItem.price); changed = true; }
-        if (item.image_url !== seedItem.image_url) { item.image_url = seedItem.image_url; changed = true; }
-        if (item.tags !== seedItem.tags) { item.tags = seedItem.tags; changed = true; }
-        if (item.allergens !== seedItem.allergens) { item.allergens = seedItem.allergens; changed = true; }
-        if (item.prep_time_minutes !== seedItem.prep_time_minutes) { item.prep_time_minutes = seedItem.prep_time_minutes; changed = true; }
-        if (item.status !== seedItem.status) { item.status = seedItem.status; changed = true; }
-        if (item.is_available !== seedItem.is_available) { item.is_available = seedItem.is_available; changed = true; }
-        if (item.display_order !== seedItem.display_order) { item.display_order = seedItem.display_order; changed = true; }
-        if (changed) { await this.menuItemRepository.save(item); itemsUpdated++; }
+        if (item.category_id !== category.id) {
+          item.category_id = category.id;
+          item.category = category;
+          changed = true;
+        }
+        if (item.description !== seedItem.description) {
+          item.description = seedItem.description;
+          changed = true;
+        }
+        if (String(item.price) !== String(seedItem.price)) {
+          item.price = String(seedItem.price);
+          changed = true;
+        }
+        if (item.image_url !== seedItem.image_url) {
+          item.image_url = seedItem.image_url;
+          changed = true;
+        }
+        if (item.tags !== seedItem.tags) {
+          item.tags = seedItem.tags;
+          changed = true;
+        }
+        if (item.allergens !== seedItem.allergens) {
+          item.allergens = seedItem.allergens;
+          changed = true;
+        }
+        if (item.prep_time_minutes !== seedItem.prep_time_minutes) {
+          item.prep_time_minutes = seedItem.prep_time_minutes;
+          changed = true;
+        }
+        if (item.status !== seedItem.status) {
+          item.status = seedItem.status;
+          changed = true;
+        }
+        if (item.is_available !== seedItem.is_available) {
+          item.is_available = seedItem.is_available;
+          changed = true;
+        }
+        if (item.display_order !== seedItem.display_order) {
+          item.display_order = seedItem.display_order;
+          changed = true;
+        }
+        if (changed) {
+          await this.menuItemRepository.save(item);
+          itemsUpdated++;
+        }
       } else {
         item = this.menuItemRepository.create({
           restaurant_id: restaurantId,

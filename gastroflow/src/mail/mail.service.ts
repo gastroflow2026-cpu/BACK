@@ -149,4 +149,98 @@ export class MailService {
       },
     });
   }
+
+  async sendSubscriptionCancelledEmail(data: {
+    to: string;
+    name: string;
+    planName: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Suscripción cancelada',
+      template: 'subscription-cancelled',
+      context: {
+        name: data.name,
+        planName: data.planName,
+      },
+    });
+  }
+  async sendRestaurantRejectedEmail(data: {
+    to: string;
+    name: string;
+    notes?: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Solicitud de restaurante rechazada',
+      template: 'restaurant-rejected',
+      context: {
+        name: data.name,
+        notes: data.notes ?? 'No se especificó un motivo.',
+      },
+    });
+  }
+  async sendRestaurantSuspendedEmail(data: {
+    to: string;
+    name: string;
+    notes?: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Restaurante suspendido en GastroFlow',
+      template: 'restaurant-suspended',
+      context: {
+        name: data.name,
+        notes: data.notes ?? 'No se especificó un motivo.',
+      },
+    });
+  }
+
+  async sendEmployeeCreatedEmail(data: {
+    to: string;
+    name: string;
+    role: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Bienvenido al equipo de GastroFlow',
+      template: 'employee-created',
+      context: {
+        name: data.name,
+        role: data.role,
+      },
+    });
+  }
+
+  async sendEmployeeDismissedEmail(data: {
+    to: string;
+    name: string;
+    role: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Finalización de vinculación laboral',
+      template: 'employee-dismissed',
+      context: {
+        name: data.name,
+        role: data.role,
+      },
+    });
+  }
+
+  async sendSubscriptionReactivatedEmail(data: {
+    to: string;
+    name: string;
+    planName: string;
+  }): Promise<void> {
+    await this.sendTemplateMail({
+      to: data.to,
+      subject: 'Suscripción reactivada',
+      template: 'subscription-reactivated',
+      context: {
+        name: data.name,
+        planName: data.planName,
+      },
+    });
+  }
 }

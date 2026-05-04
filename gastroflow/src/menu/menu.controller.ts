@@ -45,7 +45,9 @@ export class MenuController {
     summary: 'Obtener menú público',
     description: 'Retorna el menú visible al público, agrupado por categorías.',
   })
-  async getPublicMenu(@Param('restaurantId', ParseUUIDPipe) restaurantId: string) {
+  async getPublicMenu(
+    @Param('restaurantId', ParseUUIDPipe) restaurantId: string,
+  ) {
     return this.menuService.getPublicMenu(restaurantId);
   }
 
@@ -81,7 +83,9 @@ export class MenuController {
 
   @Get(':restaurantId/categories')
   @ApiOperation({ summary: 'Listar categorías activas del menú' })
-  findAllCategories(@Param('restaurantId', ParseUUIDPipe) restaurantId: string) {
+  findAllCategories(
+    @Param('restaurantId', ParseUUIDPipe) restaurantId: string,
+  ) {
     return this.menuService.findAllCategories(restaurantId);
   }
 
@@ -110,7 +114,7 @@ export class MenuController {
   updateCategory(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateMenuCategoryDto,
-    @Req() req: any
+    @Req() req: any,
   ) {
     return this.menuService.updateCategory(id, dto, req.user.restaurant_id);
   }
@@ -162,7 +166,8 @@ export class MenuController {
   })
   findOneItem(
     @Param('restaurantId', ParseUUIDPipe) restaurantId: string,
-    @Param('id', ParseUUIDPipe) id: string,) {
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     return this.menuService.findOneItem(id, restaurantId);
   }
 
@@ -178,7 +183,7 @@ export class MenuController {
   updateItem(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateMenuItemDto,
-    @Req() req: any
+    @Req() req: any,
   ) {
     return this.menuService.updateItem(id, dto, req.user.restaurant_id);
   }
@@ -195,9 +200,13 @@ export class MenuController {
   updateItemStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('status') status: MenuItemStatus,
-    @Req() req: any
+    @Req() req: any,
   ) {
-    return this.menuService.updateItemStatus(id, status, req.user.restaurant_id);
+    return this.menuService.updateItemStatus(
+      id,
+      status,
+      req.user.restaurant_id,
+    );
   }
 
   @Delete('items/:id')

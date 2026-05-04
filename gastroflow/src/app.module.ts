@@ -19,12 +19,15 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { NotificationsModule } from './notification/notification.module';
 import { OrderModule } from './orders/order.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SubscriptionPaymentModule } from './subscriptions_payments/subscription_payment.module';
 import { RestaurantVerificationModule } from './restaurant-verification/restaurant-verification.module';
 import { PlatformModule } from './plataform/platform.module';
+import { ChatModule } from './chat/chat.module';
+import { CashRegisterModule } from './cash-register/cash-register.module';
 
 @Module({
   imports: [
-    PlatformModule  ,
+    PlatformModule,
     RestaurantVerificationModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -41,6 +44,7 @@ import { PlatformModule } from './plataform/platform.module';
     }),
     UsersModule,
     AuthModule,
+    ChatModule,
     FileUploadModule,
     MenuModule,
     RestaurantModule,
@@ -49,8 +53,10 @@ import { PlatformModule } from './plataform/platform.module';
     ReservationsModule,
     ReservationsPaymentModule,
     SubscriptionsModule,
+    SubscriptionPaymentModule,
     NotificationsModule,
     OrderModule,
+    CashRegisterModule,
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },

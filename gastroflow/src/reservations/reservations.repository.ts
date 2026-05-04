@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, MoreThan, Repository } from 'typeorm';
+import { Between, In, LessThan, MoreThan, Repository } from 'typeorm';
 
 import { Reservation } from './entities/reservation.entity';
 import { newReservation } from './dto/reservation.dto';
@@ -20,6 +20,24 @@ import { ReservationsPaymentService } from '../reservations-payment/reservations
 export interface CreateReservationResult {
   reservation: Reservation;
   paymentUrl: string | null;
+}
+
+export interface CashierReservationItem {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  guests_count: number;
+  status: ReservationStatus;
+  notes: string | null;
+  reservation_date: Date;
+  start_time: Date;
+  end_time: Date;
+  table: {
+    id: string;
+    table_number: number;
+  } | null;
+  created_at: Date;
+  updated_at: Date;
 }
 
 @Injectable()
@@ -58,11 +76,64 @@ export class ReservationsRepository {
     return reservations;
   }
 
+  async getCashierReservationsByDate(
+    restaurantId: string,
+    date?: string,
+    status?: ReservationStatus,
+  ): Promise<CashierReservationItem[]> {
+    const targetDate = date ? new Date(`${date}T00:00:00`) : new Date();
+
+    if (Number.isNaN(targetDate.getTime())) {
+      throw new BadRequestException('Fecha inválida. Usa formato YYYY-MM-DD');
+    }
+
+    const dayStart = new Date(targetDate);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const dayEnd = new Date(targetDate);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const reservations = await this.reservationsRepository.find({
+      where: {
+        restaurant: { id: restaurantId },
+        reservation_date: Between(dayStart, dayEnd),
+        ...(status ? { status } : {}),
+      },
+      relations: ['table'],
+      order: {
+        start_time: 'ASC',
+      },
+    });
+
+    return reservations.map((reservation) => ({
+      id: reservation.id,
+      customer_name: reservation.customer_name,
+      customer_phone: reservation.customer_phone,
+      guests_count: reservation.guests_count,
+      status: reservation.status,
+      notes: reservation.notes ?? null,
+      reservation_date: reservation.reservation_date,
+      start_time: reservation.start_time,
+      end_time: reservation.end_time,
+      table: reservation.table
+        ? {
+            id: reservation.table.id,
+            table_number: reservation.table.table_number,
+          }
+        : null,
+      created_at: reservation.created_at,
+      updated_at: reservation.updated_at,
+    }));
+  }
+
   async createNewReservation(
     restaurantId: string,
     reservationData: newReservation,
     userId: string,
   ): Promise<CreateReservationResult> {
+    const startTime = new Date(reservationData.start_time);
+    const endTime = new Date(startTime.getTime() + (2 * 60 + 15) * 60 * 1000);
+
     const restaurant = await this.restaurantsRepository.findOne({
       where: { id: restaurantId },
     });
@@ -89,22 +160,17 @@ export class ReservationsRepository {
       throw new NotFoundException('Mesa no encontrada');
     }
 
-    const tableNotAvailable = await this.reservationsRepository.findOne({
+    const conflict = await this.reservationsRepository.findOne({
       where: {
-        restaurant: { id: restaurantId },
-        table: { id: table_id },
-        status: ReservationStatus.CONFIRMED,
-        start_time: LessThan(
-          new Date(new Date(start_time).getTime() + (2 * 60 + 15) * 60 * 1000),
-        ),
-        end_time: MoreThan(new Date(start_time)),
+        table: { id: reservationData.table_id },
+        status: In([ReservationStatus.CONFIRMED, ReservationStatus.PENDING]),
+        start_time: LessThan(endTime),
+        end_time: MoreThan(startTime),
       },
-      relations: ['table'],
     });
 
-    if (tableNotAvailable) {
-      throw new BadRequestException('Mesa no disponible');
-    }
+    if (conflict)
+      throw new BadRequestException('La mesa ya está reservada en ese horario');
 
     const createReservation = this.reservationsRepository.create({
       ...reservationData,
@@ -138,7 +204,7 @@ export class ReservationsRepository {
 
     const reservation = await this.reservationsRepository.findOne({
       where: { id: savedReservation.id },
-      relations: ['user'],
+      relations: ['user', 'table', 'restaurant'],
     });
 
     if (!reservation) {

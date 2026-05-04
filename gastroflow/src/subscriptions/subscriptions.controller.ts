@@ -28,6 +28,11 @@ export class SubscriptionsController {
     return this.subscriptionsService.findAll();
   }
 
+  @Get('restaurant/:restaurantId')
+  findByRestaurant(@Param('restaurantId', ParseUUIDPipe) restaurantId: string) {
+    return this.subscriptionsService.findByRestaurant(restaurantId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.subscriptionsService.findOne(id);

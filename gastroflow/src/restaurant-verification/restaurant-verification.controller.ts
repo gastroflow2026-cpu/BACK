@@ -67,7 +67,8 @@ export class RestaurantVerificationController {
             message: 'El archivo debe ser menor a 5 MB',
           }),
           new FileTypeValidator({
-            fileType: /(application\/pdf|image\/jpeg|image\/jpg|image\/png|image\/webp)/,
+            fileType:
+              /(application\/pdf|image\/jpeg|image\/jpg|image\/png|image\/webp)/,
           }),
         ],
       }),

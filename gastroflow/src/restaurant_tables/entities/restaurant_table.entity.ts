@@ -10,7 +10,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
-import { RestaurantTableStatus } from '../../common/restaurant_table.enum';
+import {
+  RestaurantTableLayoutShape,
+  RestaurantTableStatus,
+} from '../../common/restaurant_table.enum';
 import { Reservation } from '../../reservations/entities/reservation.entity';
 import { Order } from '../../orders/entities/order.entity';
 
@@ -37,7 +40,6 @@ export class RestaurantTables {
   })
   capacity!: number;
 
-
   @Column({
     type: 'varchar',
     length: 25,
@@ -56,6 +58,48 @@ export class RestaurantTables {
     default: true,
   })
   is_active!: boolean;
+
+  @Column({
+    type: 'int',
+    nullable: true,
+  })
+  layout_x!: number | null;
+
+  @Column({
+    type: 'int',
+    nullable: true,
+  })
+  layout_y!: number | null;
+
+  @Column({
+    type: 'int',
+    default: 1,
+  })
+  layout_width!: number;
+
+  @Column({
+    type: 'int',
+    default: 1,
+  })
+  layout_height!: number;
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+    default: RestaurantTableLayoutShape.SQUARE,
+  })
+  layout_shape!: RestaurantTableLayoutShape;
+
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  layout_rotation!: number;
+
+  @Column({
+    default: true,
+  })
+  is_visible!: boolean;
 
   @OneToMany(() => Reservation, (reservation) => reservation.table)
   reservations!: Reservation[];

@@ -8,7 +8,42 @@ import {
   Max,
   MaxLength,
   Min,
+  IsArray,
+  IsEnum,
+  IsInt,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export enum RestaurantLayoutMarkerTypeDto {
+  ENTRANCE = 'entrance',
+  BATHROOM = 'bathroom',
+  KITCHEN = 'kitchen',
+}
+
+export class RestaurantLayoutMarkerDto {
+  @ApiProperty({ example: 'entrance-1' })
+  @IsString()
+  @MaxLength(80)
+  id!: string;
+
+  @ApiProperty({
+    enum: RestaurantLayoutMarkerTypeDto,
+    example: RestaurantLayoutMarkerTypeDto.ENTRANCE,
+  })
+  @IsEnum(RestaurantLayoutMarkerTypeDto)
+  type!: RestaurantLayoutMarkerTypeDto;
+
+  @ApiProperty({ example: 0 })
+  @IsInt()
+  @Min(0)
+  layout_x!: number;
+
+  @ApiProperty({ example: 0 })
+  @IsInt()
+  @Min(0)
+  layout_y!: number;
+}
 
 export class CreateRestaurantDto {
   @ApiProperty({ example: 'La Parrilla del Sol' })
@@ -78,6 +113,13 @@ export class CreateRestaurantDto {
   @IsOptional()
   @IsString()
   about?: string;
+
+  @ApiPropertyOptional({ type: [RestaurantLayoutMarkerDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RestaurantLayoutMarkerDto)
+  layout_markers?: RestaurantLayoutMarkerDto[];
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()

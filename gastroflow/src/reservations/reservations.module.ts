@@ -11,6 +11,8 @@ import { User } from '../users/entities/user.entity';
 import { MailModule } from '../mail/mail.module';
 import { ReservationsPaymentService } from '../reservations-payment/reservations-payment.service';
 import { ReservationPayment } from '../reservations-payment/entities/reservations-payment.entity';
+import { ReservationsCashierController } from './reservations-cashier.controller';
+import { ReservationGateway } from './gateways/reservation.gateway';
 
 @Module({
   imports: [
@@ -23,12 +25,13 @@ import { ReservationPayment } from '../reservations-payment/entities/reservation
     ]),
     MailModule,
   ],
-  controllers: [ReservationsController],
+  controllers: [ReservationsController, ReservationsCashierController],
   providers: [
     ReservationsService,
     ReservationsRepository,
     RestaurantTablesRepository,
     ReservationsPaymentService,
+    ReservationGateway,
   ],
 })
 export class ReservationsModule {}

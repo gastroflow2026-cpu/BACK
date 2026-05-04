@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, LessThanOrEqual, Repository } from 'typeorm';
+import { Between, LessThan, LessThanOrEqual, Repository } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import { Subscription } from './entities/subscription.entity';
 import { SubscriptionStatus } from './enums/subscription-status.enum';
@@ -25,6 +25,7 @@ export class SubscriptionsCronService {
     private readonly mailService: MailService,
   ) {}
 
+  // CRON (RECORDATORIOS)
   @Cron(CronExpression.EVERY_DAY_AT_9AM)
   async handleSubscriptionReminders() {
     this.logger.log('Running subscription reminders cron...');
@@ -32,6 +33,48 @@ export class SubscriptionsCronService {
     await this.createReminderLogs();
     await this.processPendingLogs();
   }
+
+  //  CRON (SUSPENSIÓN AUTOMÁTICA)
+  @Cron(CronExpression.EVERY_DAY_AT_9AM)
+  async handleExpiredSubscriptions() {
+    this.logger.log('Running expired subscriptions cron...');
+
+    const today = new Date();
+
+    const expiredSubscriptions = await this.subscriptionRepository.find({
+      where: {
+        end_date: LessThan(today),
+        status: SubscriptionStatus.ACTIVE,
+      },
+      relations: {
+        restaurant: true,
+      },
+    });
+
+    for (const subscription of expiredSubscriptions) {
+      subscription.status = SubscriptionStatus.CANCELLED;
+
+      await this.subscriptionRepository.save(subscription);
+
+      const email = subscription.restaurant?.email;
+
+      if (!email) continue;
+
+      await this.mailService.sendGenericNotification(
+        email,
+        'Suscripción cancelada por vencimiento',
+        'Tu suscripción ha sido cancelada automáticamente porque llegó a su fecha de vencimiento. Puedes renovarla para seguir usando GastroFlow.',
+      );
+
+      this.logger.log(
+        `Expired subscription cancelled and notified: ${subscription.id}`,
+      );
+    }
+  }
+
+  // =========================
+  // LÓGICA RECORDATORIOS
+  // =========================
 
   private async createReminderLogs() {
     const today = new Date();

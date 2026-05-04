@@ -16,6 +16,16 @@ import { Subscription } from '../../subscriptions/entities/subscription.entity';
 import { Notification } from '../../notification/entities/notification.entity';
 import { Order } from '../../orders/entities/order.entity';
 import { RestaurantVerificationStatus } from '../../common/restaurant-verification-status.enum';
+
+export type RestaurantLayoutMarkerType = 'entrance' | 'bathroom' | 'kitchen';
+
+export interface RestaurantLayoutMarker {
+  id: string;
+  type: RestaurantLayoutMarkerType;
+  layout_x: number;
+  layout_y: number;
+}
+
 @Entity({
   name: 'RESTAURANTS',
 })
@@ -111,6 +121,13 @@ export class Restaurant {
   image_url!: string;
 
   @Column({
+    type: 'jsonb',
+    nullable: false,
+    default: () => "'[]'::jsonb",
+  })
+  layout_markers!: RestaurantLayoutMarker[];
+
+  @Column({
     type: 'text',
     nullable: true,
   })
@@ -158,7 +175,7 @@ export class Restaurant {
 
   @OneToMany(() => Subscription, (subscription) => subscription.restaurant)
   subscriptions!: Subscription[];
-   
+
   //@OneToOne(() => RestaurantTheme, (theme) => theme.restaurant)
   //theme!: RestaurantTheme;
 

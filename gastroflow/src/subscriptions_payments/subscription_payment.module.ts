@@ -1,0 +1,17 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SubscriptionPayment } from './entities/subscription_payment.entity';
+import { SubscriptionsPaymentController } from './subscription_payment.controller';
+import { SubscriptionsPaymentService } from './subscription_payment.service';
+import { Subscription } from '../subscriptions/entities/subscription.entity';
+import { MailModule } from '../mail/mail.module';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([SubscriptionPayment, Subscription]),
+    MailModule,
+  ],
+  controllers: [SubscriptionsPaymentController],
+  providers: [SubscriptionsPaymentService],
+})
+export class SubscriptionPaymentModule {}

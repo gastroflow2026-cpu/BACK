@@ -92,7 +92,7 @@ export class AuthService {
     return this.buildAuthResponse(dbUser);
   }
 
-  async loginWithProvider(user: User) {
+  loginWithProvider(user: User) {
     return this.buildAuthResponse(user);
   }
 
@@ -116,6 +116,18 @@ export class AuthService {
       role: UserRole.REST_ADMIN,
       auth_provider: AuthProvider.LOCAL_AUTH,
     });
+
+    try {
+      await this.mailService.sendWelcomeEmail(
+        savedUser.email,
+        savedUser.first_name,
+      );
+    } catch (error) {
+      console.error(
+        'Usuario owner creado, pero falló el correo de bienvenida',
+        error,
+      );
+    }
 
     return this.buildAuthResponse(savedUser);
   }
@@ -264,6 +276,7 @@ export class AuthService {
       });
 
       const savedRestaurant = await restaurantRepository.save(restaurant);
+
       owner.restaurant_id = savedRestaurant.id;
 
       return await userRepository.save(owner);
@@ -314,7 +327,19 @@ export class AuthService {
       throw new UnauthorizedException('No se pudo crear el usuario de Google');
     }
 
-    return { user: createdUser, isNewUser: true }; // <-- fix
+    try {
+      await this.mailService.sendWelcomeEmail(
+        createdUser.email,
+        createdUser.first_name,
+      );
+    } catch (error) {
+      console.error(
+        'Usuario Google creado, pero falló el correo de bienvenida',
+        error,
+      );
+    }
+
+    return { user: createdUser, isNewUser: true };
   }
 
   private assignRoles(user: User): UserRole[] {

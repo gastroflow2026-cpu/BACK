@@ -5,6 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -34,8 +35,8 @@ export class Reservation {
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
-  @OneToOne(() => ReservationPayment, (payment) => payment.reservation)
-  payment!: ReservationPayment;
+  @OneToMany(() => ReservationPayment, (payment) => payment.reservation)
+  payment!: ReservationPayment[];
 
   @Column({
     type: 'varchar',
@@ -48,7 +49,6 @@ export class Reservation {
     type: 'varchar',
     length: 50,
     nullable: false,
-    unique: true,
   })
   customer_email!: string;
 

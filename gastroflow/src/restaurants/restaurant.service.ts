@@ -8,6 +8,7 @@ import {
 import { Restaurant } from './entities/restaurant.entity';
 import { UpdateRestaurantDto } from './dto/restaurant.dto';
 import { NotificationsService } from '../notification/notification.service';
+import { RestaurantVerificationStatus } from '../common/restaurant-verification-status.enum';
 
 export const restaurantsSeed = [
   {
@@ -138,7 +139,10 @@ export class RestaurantService {
   //* Endpoint público para landing
   async getPublicRestaurant() {
     const restaurant = await this.restaurantRepository.find({
-      where: { is_active: true },
+      where: {
+        is_active: true,
+        verification_status: RestaurantVerificationStatus.APPROVED,
+      },
       select: {
         id: true,
         name: true,
@@ -153,6 +157,7 @@ export class RestaurantService {
         rating: true,
         image_url: true,
         about: true,
+        layout_markers: true,
       },
     });
 
@@ -166,6 +171,15 @@ export class RestaurantService {
   //* Endpoint publico para listar restaurantes visibles
   async getPublicRestaurants() {
     return await this.restaurantRepository.find({
+      where: [
+        {
+          is_active: true,
+          verification_status: RestaurantVerificationStatus.APPROVED,
+        },
+        {
+          verification_status: RestaurantVerificationStatus.PENDING,
+        },
+      ],
       select: {
         id: true,
         name: true,
@@ -181,6 +195,7 @@ export class RestaurantService {
         image_url: true,
         about: true,
         is_active: true,
+        layout_markers: true,
       },
       order: {
         created_at: 'DESC',

@@ -1,8 +1,7 @@
-import { IsIn } from 'class-validator';
-
-export type KitchenOrderStatus = 'pendiente' | 'preparacion' | 'servido';
+import { IsEnum } from 'class-validator';
+import { KitchenOrderStatus } from '../../common/order.enum';
 
 export class UpdateKitchenOrderStatusDto {
-  @IsIn(['pendiente', 'preparacion', 'servido'])
+  @IsEnum(KitchenOrderStatus)
   status!: KitchenOrderStatus;
 }

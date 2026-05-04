@@ -32,18 +32,18 @@ import { RestaurantVerificationStatus } from '../common/restaurant-verification-
 @Controller('platform')
 export class PlatformController {
   constructor(private readonly platformService: PlatformService) {}
-@Get('restaurants')
-@ApiOperation({
-  summary: 'Listar restaurantes registrados en la plataforma',
-})
-@ApiQuery({
-  name: 'status',
-  required: false,
-  enum: RestaurantVerificationStatus,
-})
-getRestaurants(@Query('status') status?: RestaurantVerificationStatus) {
-  return this.platformService.getRestaurants(status);
-}
+  @Get('restaurants')
+  @ApiOperation({
+    summary: 'Listar restaurantes registrados en la plataforma',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: RestaurantVerificationStatus,
+  })
+  getRestaurants(@Query('status') status?: RestaurantVerificationStatus) {
+    return this.platformService.getRestaurants(status);
+  }
 
   @Get('restaurants/pending')
   @ApiOperation({
@@ -51,6 +51,22 @@ getRestaurants(@Query('status') status?: RestaurantVerificationStatus) {
   })
   getPendingRestaurants() {
     return this.platformService.getPendingRestaurants();
+  }
+
+  @Get('subscriptions/active')
+  @ApiOperation({
+    summary: 'Listar suscripciones activas de restaurantes',
+  })
+  getActiveSubscriptions() {
+    return this.platformService.getActiveSubscriptions();
+  }
+
+  @Get('revenue/subscriptions')
+  @ApiOperation({
+    summary: 'Obtener métricas de ingresos por suscripciones de restaurantes',
+  })
+  getSubscriptionRevenueMetrics() {
+    return this.platformService.getSubscriptionRevenueMetrics();
   }
 
   @Get('restaurants/:id')

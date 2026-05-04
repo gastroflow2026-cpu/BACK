@@ -1,12 +1,11 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { RestaurantVerificationStatus } from '../../common/restaurant-verification-status.enum';
 
 export class PlatformReviewRestaurantDto {
-  @ApiPropertyOptional({
-    example: 'Documentación validada correctamente.',
-  })
+  @IsEnum(RestaurantVerificationStatus)
+  status!: RestaurantVerificationStatus;
+
   @IsOptional()
   @IsString()
-  @MaxLength(500)
   notes?: string;
 }

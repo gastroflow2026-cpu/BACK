@@ -9,6 +9,7 @@ import {
 } from './dto/subscription.dto';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { SubscriptionStatus } from './enums/subscription-status.enum';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class SubscriptionsService {
@@ -18,6 +19,8 @@ export class SubscriptionsService {
 
     @InjectRepository(Restaurant)
     private readonly restaurantsRepository: Repository<Restaurant>,
+
+    private readonly mailService: MailService,
   ) {}
 
   async create(
@@ -47,6 +50,20 @@ export class SubscriptionsService {
     return await this.subscriptionsRepository.save(subscription);
   }
 
+  async findByRestaurant(restaurantId: string): Promise<Subscription | null> {
+    const subscription = await this.subscriptionsRepository.findOne({
+      where: {
+        restaurant: { id: restaurantId },
+        status: SubscriptionStatus.ACTIVE,
+      },
+      relations: ['restaurant'],
+      order: { created_at: 'DESC' },
+    });
+
+    if (!subscription) throw new NotFoundException('No hay suscripción activa');
+    return subscription;
+  }
+
   async findAll(): Promise<Subscription[]> {
     return await this.subscriptionsRepository.find({
       relations: ['restaurant'],
@@ -72,6 +89,7 @@ export class SubscriptionsService {
     updateSubscriptionDto: UpdateSubscriptionDto,
   ): Promise<Subscription> {
     const subscription = await this.findOne(id);
+    const previousStatus = subscription.status;
 
     if (updateSubscriptionDto.plan_type !== undefined) {
       subscription.plan_type = updateSubscriptionDto.plan_type;
@@ -99,12 +117,36 @@ export class SubscriptionsService {
       subscription.auto_renew = updateSubscriptionDto.auto_renew;
     }
 
-    return await this.subscriptionsRepository.save(subscription);
+    const savedSubscription =
+      await this.subscriptionsRepository.save(subscription);
+
+    if (
+      previousStatus !== SubscriptionStatus.ACTIVE &&
+      savedSubscription.status === SubscriptionStatus.ACTIVE &&
+      savedSubscription.restaurant?.email
+    ) {
+      await this.mailService.sendSubscriptionReactivatedEmail({
+        to: savedSubscription.restaurant.email,
+        name: savedSubscription.restaurant.name,
+        planName: savedSubscription.plan_type,
+      });
+    }
+
+    return savedSubscription;
   }
 
   async remove(id: string): Promise<{ message: string }> {
     const subscription = await this.findOne(id);
+
     await this.subscriptionsRepository.softRemove(subscription);
+
+    if (subscription.restaurant?.email) {
+      await this.mailService.sendSubscriptionCancelledEmail({
+        to: subscription.restaurant.email,
+        name: subscription.restaurant.name,
+        planName: subscription.plan_type,
+      });
+    }
 
     return { message: 'Suscripción eliminada correctamente' };
   }
