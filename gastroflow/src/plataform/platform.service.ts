@@ -31,7 +31,7 @@ export class PlatformService {
   async getRestaurants(status?: RestaurantVerificationStatus) {
     return this.restaurantRepository.find({
       where: status ? { verification_status: status } : {},
-      relations: ['users', 'verification_documents', 'subscriptions'],
+      relations: ['users', 'subscriptions'],
       order: {
         created_at: 'DESC',
       },
@@ -41,7 +41,7 @@ export class PlatformService {
   async getPendingRestaurants() {
     return this.restaurantRepository.find({
       where: { verification_status: RestaurantVerificationStatus.PENDING },
-      relations: ['users', 'verification_documents'],
+      relations: ['users'],
       order: {
         created_at: 'DESC',
       },
@@ -49,7 +49,7 @@ export class PlatformService {
   }
 
   async getActiveSubscriptions() {
-    return this.subscriptionRepository.find({
+    const subscriptions = await this.subscriptionRepository.find({
       where: {
         status: SubscriptionStatus.ACTIVE,
       },
@@ -58,47 +58,40 @@ export class PlatformService {
         created_at: 'DESC',
       },
     });
+
+    return subscriptions.map((subscription) => ({
+      ...subscription,
+      days_remaining: this.getRemainingDays(subscription.end_date),
+    }));
   }
 
   async getSubscriptionRevenueMetrics() {
-    const subscriptions = await this.subscriptionRepository.find();
-
-    const activeSubscriptions = subscriptions.filter(
-      (subscription) => subscription.status === SubscriptionStatus.ACTIVE,
-    );
-
-    const pendingSubscriptions = subscriptions.filter(
-      (subscription) => subscription.status === SubscriptionStatus.PENDING,
-    );
-
-    const cancelledSubscriptions = subscriptions.filter(
-      (subscription) => subscription.status === SubscriptionStatus.CANCELLED,
-    );
-
     return {
-      total_subscriptions: subscriptions.length,
-      active_subscriptions: activeSubscriptions.length,
-      pending_subscriptions: pendingSubscriptions.length,
-      cancelled_subscriptions: cancelledSubscriptions.length,
-      by_plan: {
-        basic: subscriptions.filter(
-          (subscription) => subscription.plan_type === PlanType.BASIC,
-        ).length,
-      },
+      generated_at: new Date().toISOString(),
+      total_revenue: [],
+      current_month_revenue: [],
+      payment_status_counts: [],
     };
   }
 
   async getRestaurantReviewDetail(restaurantId: string) {
     const restaurant = await this.restaurantRepository.findOne({
       where: { id: restaurantId },
-      relations: ['users', 'verification_documents', 'subscriptions'],
+      relations: ['users', 'subscriptions'],
     });
 
     if (!restaurant) {
       throw new NotFoundException('Restaurante no encontrado');
     }
 
-    return restaurant;
+    const documents = await this.documentRepository.find({
+      where: { restaurant_id: restaurantId },
+    });
+
+    return {
+      ...restaurant,
+      verification_documents: documents,
+    };
   }
 
   async approveRestaurant(
@@ -247,5 +240,19 @@ export class PlatformService {
     const newDate = new Date(date);
     newDate.setMonth(newDate.getMonth() + months);
     return newDate;
+  }
+
+  private getRemainingDays(endDate: Date): number {
+    const end = new Date(endDate);
+    const today = new Date();
+
+    end.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const dayDiff = Math.floor(
+      (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    return Math.max(0, dayDiff);
   }
 }
