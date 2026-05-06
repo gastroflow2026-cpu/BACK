@@ -16,6 +16,7 @@ import {
 } from '../../common/restaurant_table.enum';
 import { Reservation } from '../../reservations/entities/reservation.entity';
 import { Order } from '../../orders/entities/order.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity({
   name: 'RESTAURANTS_TABLES',
@@ -100,6 +101,18 @@ export class RestaurantTables {
     default: true,
   })
   is_visible!: boolean;
+
+  @Column({
+    type: 'uuid',
+    nullable: true,
+  })
+  assigned_waiter_id!: string | null;
+
+  @ManyToOne(() => User, {
+    nullable: true,
+  })
+  @JoinColumn({ name: 'assigned_waiter_id' })
+  assigned_waiter!: User | null;
 
   @OneToMany(() => Reservation, (reservation) => reservation.table)
   reservations!: Reservation[];

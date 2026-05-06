@@ -17,6 +17,9 @@ import {
 import { UserRole } from '../common/user.enums';
 import * as bcrypt from 'bcrypt';
 import { MailService } from '../mail/mail.service';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
 export interface EmployeeResponse {
   id: string;
@@ -40,6 +43,9 @@ export class UsersService {
   constructor(
     private readonly userRepository: UsersRepository,
     private readonly mailService: MailService,
+
+    @InjectRepository(Restaurant)
+    private readonly restaurantRepository: Repository<Restaurant>,
   ) {}
 
   async getAllUsers(
@@ -116,10 +122,16 @@ export class UsersService {
     );
     if (!employee)
       throw new NotFoundException(`No existe empleado con id ${id}`);
+
+    const restaurant = await this.restaurantRepository.findOne({
+      where: { id: restaurantId },
+    });
+
     await this.mailService.sendEmployeeCreatedEmail({
       to: employee.email,
-      name: employee.first_name,
-      role: this.toEmployeeRole(employee.role),
+      name: `${employee.first_name} ${employee.last_name}`,
+      role: employee.role,
+      restaurantName: restaurant?.name ?? 'tu restaurante',
     });
 
     return this.toEmployeeResponse(employee);

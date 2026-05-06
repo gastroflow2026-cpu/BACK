@@ -8,14 +8,20 @@ import { UsersRepository } from './user.repository';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { MailModule } from '../mail/mail.module';
 import { Reservation } from '../reservations/entities/reservation.entity';
+import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, PasswordResetToken, Reservation]),
+    TypeOrmModule.forFeature([
+      User,
+      PasswordResetToken,
+      Reservation,
+      Restaurant,
+    ]),
     MailModule,
   ],
   controllers: [UsersController, EmployeesController],
   providers: [UsersService, UsersRepository],
-  exports: [UsersRepository],
+  exports: [UsersRepository, UsersService],
 })
 export class UsersModule {}

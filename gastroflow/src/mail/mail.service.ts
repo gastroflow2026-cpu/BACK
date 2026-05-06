@@ -200,14 +200,16 @@ export class MailService {
     to: string;
     name: string;
     role: string;
-  }): Promise<void> {
-    await this.sendTemplateMail({
+    restaurantName: string;
+  }) {
+    await this.mailerService.sendMail({
       to: data.to,
-      subject: 'Bienvenido al equipo de GastroFlow',
+      subject: `Has sido registrado en ${data.restaurantName}`,
       template: 'employee-created',
       context: {
         name: data.name,
         role: data.role,
+        restaurantName: data.restaurantName,
       },
     });
   }

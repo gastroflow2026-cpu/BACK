@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RestaurantTablesRepository } from './restaurant_tables.repository';
 import { RestaurantTableStatus } from '../common/restaurant_table.enum';
 import {
+  AssignWaiterToTableDto,
   CreateTableDto,
   UpdateTableDto,
   UpdateTablesLayoutDto,
@@ -12,6 +13,47 @@ export class RestaurantTablesService {
   constructor(
     private readonly restaurantsTablesRepository: RestaurantTablesRepository,
   ) {}
+
+  async getTablesAssignments(restaurantId: string) {
+    return this.restaurantsTablesRepository.getTablesAssignments(restaurantId);
+  }
+
+  async getRestaurantWaiters(restaurantId: string) {
+    return this.restaurantsTablesRepository.getRestaurantWaiters(restaurantId);
+  }
+
+  async getWaiterAssignedTables(
+    restaurantId: string,
+    waiterId: string,
+    date?: string,
+    time?: string,
+  ) {
+    return this.restaurantsTablesRepository.getWaiterAssignedTables(
+      restaurantId,
+      waiterId,
+      date,
+      time,
+    );
+  }
+
+  async assignWaiterToTable(
+    restaurantId: string,
+    tableId: string,
+    dto: AssignWaiterToTableDto,
+  ) {
+    return this.restaurantsTablesRepository.assignWaiterToTable(
+      restaurantId,
+      tableId,
+      dto,
+    );
+  }
+
+  async unassignWaiterFromTable(restaurantId: string, tableId: string) {
+    return this.restaurantsTablesRepository.unassignWaiterFromTable(
+      restaurantId,
+      tableId,
+    );
+  }
 
   async getAvailableTables(restaurantId: string, date: string, time: string) {
     return await this.restaurantsTablesRepository.getAvailableTables(

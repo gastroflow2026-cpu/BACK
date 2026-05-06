@@ -85,6 +85,16 @@ export class CreateTableDto {
 
 export class UpdateTableDto extends PartialType(CreateTableDto) {}
 
+export class AssignWaiterToTableDto {
+  @ApiProperty({
+    example: '2f2c0ce1-4d23-4ce8-bf7b-87ec1cc9f9fe',
+    description: 'ID del mozo a asignar',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  waiter_id!: string;
+}
+
 export class UpdateTableLayoutItemDto {
   @ApiProperty({ example: 'uuid-de-la-mesa' })
   @IsUUID()

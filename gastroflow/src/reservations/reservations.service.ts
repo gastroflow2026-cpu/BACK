@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { newReservation } from './dto/reservation.dto';
-import { ReservationsRepository } from './reservations.repository';
+import { CreateReservationResult, ReservationsRepository } from './reservations.repository';
 import { MailService } from '../mail/mail.service';
 import { CashierReservationsQueryDto } from './dto/cashier-reservations-query.dto';
 import { ReservationGateway } from './gateways/reservation.gateway';
@@ -42,7 +42,7 @@ export class ReservationsService {
     restaurantId: string,
     reservationData: newReservation,
     userId: string,
-  ) {
+  ) : Promise<CreateReservationResult> {
     const { reservation, paymentUrl } =
       await this.reservationsRepository.createNewReservation(
         restaurantId,
@@ -71,7 +71,7 @@ export class ReservationsService {
       this.buildRealtimePayload(reservation),
     );
 
-    return paymentUrl;
+    return { reservation, paymentUrl };
   }
 
   async cancelReservation(restaurantId: string, reservationId: string) {

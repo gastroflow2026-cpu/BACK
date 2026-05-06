@@ -92,6 +92,12 @@ export class OrderService {
       throw new ForbiddenException('La mesa no pertenece a tu restaurante');
     }
 
+    if (table.assigned_waiter_id && table.assigned_waiter_id !== waiterId) {
+      throw new ForbiddenException(
+        'No puedes abrir orden en una mesa asignada a otro mozo',
+      );
+    }
+
     const existing = await this.ordersRepository.findOne({
       where: { table: { id: tableId }, isActive: true },
       relations: ['items', 'items.menuItem', 'table', 'waiter'],

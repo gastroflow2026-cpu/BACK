@@ -22,6 +22,7 @@ import {
 import { RolesGuard } from '../auth/guards/Role.guard';
 import { Role } from '../decorators/roles.decorators';
 import { UserRole } from '../common/user.enums';
+import { CreateReservationResult } from './reservations.repository';
 
 @ApiBearerAuth()
 @Controller('restaurants/:restaurantId/reservations')
@@ -64,14 +65,14 @@ export class ReservationsController {
     @Param('restaurantId', ParseUUIDPipe) restaurantId: string,
     @Body() reservationData: newReservation,
     @Req() req,
-  ) {
+  ): Promise<{ url: string | null }> {
     const userId = req.user.id;
-    const url = await this.reservationsService.createNewReservation(
+    const { paymentUrl } = await this.reservationsService.createNewReservation(
       restaurantId,
       reservationData,
       userId,
     );
-    return { url };
+    return { url: paymentUrl };;
   }
 
   @UseGuards(AuthGuard, RolesGuard)

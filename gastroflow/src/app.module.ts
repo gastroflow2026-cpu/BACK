@@ -24,6 +24,8 @@ import { RestaurantVerificationModule } from './restaurant-verification/restaura
 import { PlatformModule } from './plataform/platform.module';
 import { ChatModule } from './chat/chat.module';
 import { CashRegisterModule } from './cash-register/cash-register.module';
+import { AdminChatModule } from './admin-chat/admin-chat.module';
+import { MetricsModule } from './metrics/metrics.module';
 
 @Module({
   imports: [
@@ -45,6 +47,7 @@ import { CashRegisterModule } from './cash-register/cash-register.module';
     UsersModule,
     AuthModule,
     ChatModule,
+    AdminChatModule,
     FileUploadModule,
     MenuModule,
     RestaurantModule,
@@ -57,6 +60,7 @@ import { CashRegisterModule } from './cash-register/cash-register.module';
     NotificationsModule,
     OrderModule,
     CashRegisterModule,
+    MetricsModule,
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '60m' },
