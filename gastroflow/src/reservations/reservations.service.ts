@@ -50,19 +50,8 @@ export class ReservationsService {
         userId,
       );
 
-    try {
-      if (reservation.user?.email) {
-        await this.mailService.sendReservationCreatedEmail({
-          to: reservation.user.email,
-          name: reservation.user.first_name,
-          date: reservation.start_time.toLocaleDateString('es-CO'),
-          time: reservation.start_time.toLocaleTimeString('es-CO'),
-        });
-      }
-    } catch {
-      this.logger.warn(
-        'La reserva se creÃ³ correctamente, pero fallÃ³ el envÃ­o del correo',
-      );
+    if (reservation.user?.email) {
+      this.dispatchReservationCreatedEmail(reservation);
     }
 
     this.reservationGateway.emitToRestaurant(
@@ -81,17 +70,8 @@ export class ReservationsService {
         reservationId,
       );
 
-    try {
-      if (cancelledReservation?.user?.email) {
-        await this.mailService.sendReservationCancelledEmail({
-          to: cancelledReservation.user.email,
-          name: cancelledReservation.user.first_name,
-        });
-      }
-    } catch {
-      this.logger.warn(
-        'La reserva se cancelÃ³ correctamente, pero fallÃ³ el envÃ­o del correo',
-      );
+    if (cancelledReservation?.user?.email) {
+      this.dispatchReservationCancelledEmail(cancelledReservation);
     }
 
     this.reservationGateway.emitToRestaurant(
@@ -123,5 +103,33 @@ export class ReservationsService {
       created_at: reservation.created_at,
       updated_at: reservation.updated_at,
     };
+  }
+
+  private dispatchReservationCreatedEmail(reservation: Reservation): void {
+    this.mailService
+      .sendReservationCreatedEmail({
+        to: reservation.user.email,
+        name: reservation.user.first_name,
+        date: reservation.start_time.toLocaleDateString('es-CO'),
+        time: reservation.start_time.toLocaleTimeString('es-CO'),
+      })
+      .catch(() => {
+        this.logger.warn(
+          'La reserva se creo correctamente, pero fallo el envio del correo',
+        );
+      });
+  }
+
+  private dispatchReservationCancelledEmail(reservation: Reservation): void {
+    this.mailService
+      .sendReservationCancelledEmail({
+        to: reservation.user.email,
+        name: reservation.user.first_name,
+      })
+      .catch(() => {
+        this.logger.warn(
+          'La reserva se cancelo correctamente, pero fallo el envio del correo',
+        );
+      });
   }
 }

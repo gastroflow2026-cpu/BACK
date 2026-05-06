@@ -12,6 +12,9 @@ import { MailService } from '../mail/mail.service';
 import { Subscription } from '../subscriptions/entities/subscription.entity';
 import { SubscriptionStatus } from '../subscriptions/enums/subscription-status.enum';
 import { PlanType } from '../subscriptions/enums/plan-type.enum';
+import { SubscriptionPayment } from '../subscriptions_payments/entities/subscription_payment.entity';
+import { SubscriptionPaymentStatus } from '../common/subscription_payment.enum';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PlatformService {
@@ -25,27 +28,38 @@ export class PlatformService {
     @InjectRepository(Subscription)
     private readonly subscriptionRepository: Repository<Subscription>,
 
+    @InjectRepository(SubscriptionPayment)
+    private readonly subscriptionPaymentRepository: Repository<SubscriptionPayment>,
+
     private readonly mailService: MailService,
   ) {}
 
   async getRestaurants(status?: RestaurantVerificationStatus) {
-    return this.restaurantRepository.find({
+    const restaurants = await this.restaurantRepository.find({
       where: status ? { verification_status: status } : {},
       relations: ['users', 'subscriptions'],
       order: {
         created_at: 'DESC',
       },
     });
+
+    return restaurants.map((restaurant) =>
+      this.sanitizeRestaurantUsers(restaurant),
+    );
   }
 
   async getPendingRestaurants() {
-    return this.restaurantRepository.find({
+    const restaurants = await this.restaurantRepository.find({
       where: { verification_status: RestaurantVerificationStatus.PENDING },
       relations: ['users'],
       order: {
         created_at: 'DESC',
       },
     });
+
+    return restaurants.map((restaurant) =>
+      this.sanitizeRestaurantUsers(restaurant),
+    );
   }
 
   async getActiveSubscriptions() {
@@ -66,11 +80,75 @@ export class PlatformService {
   }
 
   async getSubscriptionRevenueMetrics() {
+    const now = new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const totalRevenueRaw = await this.subscriptionPaymentRepository
+      .createQueryBuilder('payment')
+      .select('payment.currency', 'currency')
+      .addSelect('COALESCE(SUM(payment.amount), 0)', 'total')
+      .addSelect('COUNT(payment.id)', 'payments_count')
+      .where('payment.status = :completedStatus', {
+        completedStatus: SubscriptionPaymentStatus.COMPLETED,
+      })
+      .groupBy('payment.currency')
+      .orderBy('payment.currency', 'ASC')
+      .getRawMany<{
+        currency: string;
+        total: string;
+        payments_count: string;
+      }>();
+
+    const currentMonthRevenueRaw = await this.subscriptionPaymentRepository
+      .createQueryBuilder('payment')
+      .select('payment.currency', 'currency')
+      .addSelect('COALESCE(SUM(payment.amount), 0)', 'total')
+      .addSelect('COUNT(payment.id)', 'payments_count')
+      .where('payment.status = :completedStatus', {
+        completedStatus: SubscriptionPaymentStatus.COMPLETED,
+      })
+      .andWhere('COALESCE(payment.paid_at, payment.created_at) >= :currentMonthStart', {
+        currentMonthStart,
+      })
+      .andWhere('COALESCE(payment.paid_at, payment.created_at) < :nextMonthStart', {
+        nextMonthStart,
+      })
+      .groupBy('payment.currency')
+      .orderBy('payment.currency', 'ASC')
+      .getRawMany<{
+        currency: string;
+        total: string;
+        payments_count: string;
+      }>();
+
+    const paymentStatusCountsRaw = await this.subscriptionPaymentRepository
+      .createQueryBuilder('payment')
+      .select('payment.status', 'status')
+      .addSelect('COUNT(payment.id)', 'total')
+      .groupBy('payment.status')
+      .orderBy('payment.status', 'ASC')
+      .getRawMany<{
+        status: string;
+        total: string;
+      }>();
+
     return {
-      generated_at: new Date().toISOString(),
-      total_revenue: [],
-      current_month_revenue: [],
-      payment_status_counts: [],
+      generated_at: now.toISOString(),
+      total_revenue: totalRevenueRaw.map((item) => ({
+        currency: item.currency,
+        total: Number(item.total),
+        payments_count: Number(item.payments_count),
+      })),
+      current_month_revenue: currentMonthRevenueRaw.map((item) => ({
+        currency: item.currency,
+        total: Number(item.total),
+        payments_count: Number(item.payments_count),
+      })),
+      payment_status_counts: paymentStatusCountsRaw.map((item) => ({
+        status: item.status,
+        total: Number(item.total),
+      })),
     };
   }
 
@@ -89,7 +167,7 @@ export class PlatformService {
     });
 
     return {
-      ...restaurant,
+      ...this.sanitizeRestaurantUsers(restaurant),
       verification_documents: documents,
     };
   }
@@ -99,29 +177,39 @@ export class PlatformService {
     reviewerId: string,
     dto: PlatformReviewRestaurantDto,
   ) {
-    void reviewerId;
-    void dto;
-
     const restaurant = await this.findRestaurantWithOwner(restaurantId);
 
     restaurant.verification_status = RestaurantVerificationStatus.APPROVED;
+    restaurant.is_active = true;
+    restaurant.verification_notes = dto.notes ?? null;
+    restaurant.verified_at = new Date();
+    restaurant.verified_by_user_id = reviewerId;
     await this.restaurantRepository.save(restaurant);
 
-    const startDate = new Date();
-    const endDate = this.addMonths(startDate, 1);
-
-    const subscription = this.subscriptionRepository.create({
-      restaurant,
-      restaurant_id: restaurant.id,
-      plan_type: PlanType.BASIC,
-      status: SubscriptionStatus.ACTIVE,
-      start_date: startDate,
-      end_date: endDate,
-      next_payment_date: endDate,
-      auto_renew: true,
+    const existingActiveSubscription = await this.subscriptionRepository.findOne({
+      where: {
+        restaurant_id: restaurant.id,
+        status: SubscriptionStatus.ACTIVE,
+      },
     });
 
-    await this.subscriptionRepository.save(subscription);
+    if (!existingActiveSubscription) {
+      const startDate = new Date();
+      const endDate = this.addMonths(startDate, 1);
+
+      const subscription = this.subscriptionRepository.create({
+        restaurant,
+        restaurant_id: restaurant.id,
+        plan_type: PlanType.BASIC,
+        status: SubscriptionStatus.ACTIVE,
+        start_date: startDate,
+        end_date: endDate,
+        next_payment_date: endDate,
+        auto_renew: true,
+      });
+
+      await this.subscriptionRepository.save(subscription);
+    }
 
     const ownerEmail = this.getOwnerEmail(restaurant);
 
@@ -134,7 +222,9 @@ export class PlatformService {
     }
 
     return {
-      message: 'Restaurante aprobado y suscripción creada correctamente',
+      message: existingActiveSubscription
+        ? 'Restaurante aprobado correctamente; ya existía una suscripción activa'
+        : 'Restaurante aprobado y suscripción creada correctamente',
     };
   }
 
@@ -143,11 +233,13 @@ export class PlatformService {
     reviewerId: string,
     dto: PlatformReviewRestaurantDto,
   ) {
-    void reviewerId;
-
     const restaurant = await this.findRestaurantWithOwner(restaurantId);
 
     restaurant.verification_status = RestaurantVerificationStatus.REJECTED;
+    restaurant.is_active = false;
+    restaurant.verification_notes = dto.notes ?? null;
+    restaurant.verified_at = new Date();
+    restaurant.verified_by_user_id = reviewerId;
     await this.restaurantRepository.save(restaurant);
 
     const ownerEmail = this.getOwnerEmail(restaurant);
@@ -172,11 +264,13 @@ export class PlatformService {
     reviewerId: string,
     dto: PlatformReviewRestaurantDto,
   ) {
-    void reviewerId;
-
     const restaurant = await this.findRestaurantWithOwner(restaurantId);
 
-    restaurant.verification_status = dto.status;
+    restaurant.verification_status = RestaurantVerificationStatus.SUSPENDED;
+    restaurant.is_active = false;
+    restaurant.verification_notes = dto.notes ?? null;
+    restaurant.verified_at = new Date();
+    restaurant.verified_by_user_id = reviewerId;
     await this.restaurantRepository.save(restaurant);
 
     const ownerEmail = this.getOwnerEmail(restaurant);
@@ -255,4 +349,25 @@ export class PlatformService {
 
     return Math.max(0, dayDiff);
   }
+
+  private sanitizeRestaurantUsers<
+    T extends Restaurant | (Restaurant & Record<string, unknown>),
+  >(restaurant: T): T {
+    if (!Array.isArray(restaurant.users)) {
+      return restaurant;
+    }
+
+    const safeUsers = restaurant.users.map((user) => {
+      const { password_hash: _passwordHash, ...safeUser } = user as User & {
+        password_hash?: string;
+      };
+      return safeUser;
+    });
+
+    return {
+      ...restaurant,
+      users: safeUsers as unknown as User[],
+    };
+  }
 }
+

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
+import { getAllowedCorsOrigins } from '../../config/cors-origins';
 
 type ReservationRealtimeEvent =
   | 'reservation:created'
@@ -21,7 +22,7 @@ interface AuthenticatedSocket extends Socket {
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3001', 'http://localhost:3000'],
+    origin: getAllowedCorsOrigins(),
     credentials: true,
   },
 })

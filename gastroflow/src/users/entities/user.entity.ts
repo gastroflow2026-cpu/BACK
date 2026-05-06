@@ -100,6 +100,20 @@ export class User {
   })
   country!: string;
 
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  phone?: string;
+
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
+  address?: string;
+
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservations!: Reservation[];
 

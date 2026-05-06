@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { environment } from './config/enviroment';
+import { getAllowedCorsOrigins } from './config/cors-origins';
 import 'reflect-metadata';
 import * as express from 'express';
 import { ValidationPipe } from '@nestjs/common';
@@ -22,8 +22,17 @@ async function bootstrap() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  const allowedOrigins = getAllowedCorsOrigins();
+
   app.enableCors({
-    origin: environment.FRONTEND_URL,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
   });
 
   app.useGlobalPipes(

@@ -6,6 +6,7 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { getAllowedCorsOrigins } from '../config/cors-origins';
 
 type ChatIntent =
   | 'unknown'
@@ -21,7 +22,8 @@ type ChatIntent =
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: getAllowedCorsOrigins(),
+    credentials: true,
   },
 })
 export class ChatGateway {

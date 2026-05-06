@@ -43,18 +43,27 @@ export class AdminChatService {
       sender: { id: dto.senderId },
       receiver: { id: dto.receiverId },
     });
-    return await this.chatRepo.save(message);
+    const savedMessage = await this.chatRepo.save(message);
+    const fullMessage = await this.findMessageById(savedMessage.id);
+    return this.sanitizeMessageUsers(fullMessage ?? savedMessage);
   }
 
   async getHistory(userId: string, withUserId: string) {
-    return await this.chatRepo.find({
+    const messages = await this.chatRepo.find({
       where: [
         { sender: { id: userId }, receiver: { id: withUserId } },
         { sender: { id: withUserId }, receiver: { id: userId } },
       ],
       order: { createdAt: 'ASC' },
-      relations: ['sender', 'receiver'],
+      relations: [
+        'sender',
+        'sender.restaurant',
+        'receiver',
+        'receiver.restaurant',
+      ],
     });
+
+    return messages.map((message) => this.sanitizeMessageUsers(message));
   }
 
   async markAsRead(senderId: string, receiverId: string) {
@@ -66,5 +75,33 @@ export class AdminChatService {
       },
       { read: true },
     );
+  }
+
+  private async findMessageById(id: string) {
+    return this.chatRepo.findOne({
+      where: { id },
+      relations: [
+        'sender',
+        'sender.restaurant',
+        'receiver',
+        'receiver.restaurant',
+      ],
+    });
+  }
+
+  private sanitizeMessageUsers(message: AdminChatMessage) {
+    const sender = message.sender as unknown as Record<string, unknown> | undefined;
+    const receiver =
+      message.receiver as unknown as Record<string, unknown> | undefined;
+
+    const { password_hash: _senderPasswordHash, ...safeSender } = sender ?? {};
+    const { password_hash: _receiverPasswordHash, ...safeReceiver } =
+      receiver ?? {};
+
+    return {
+      ...message,
+      sender: safeSender,
+      receiver: safeReceiver,
+    };
   }
 }

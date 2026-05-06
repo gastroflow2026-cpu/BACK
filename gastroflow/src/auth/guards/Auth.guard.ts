@@ -17,7 +17,6 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     const authHeader = request.headers['authorization'];
-    console.log('AUTH HEADER:', authHeader);
 
     const token = authHeader?.split(' ')[1];
 
@@ -29,16 +28,17 @@ export class AuthGuard implements CanActivate {
       const secret = this.configService.get<string>('JWT_SECRET');
       const payload = await this.jwtService.verifyAsync(token, { secret });
 
-      console.log('JWT PAYLOAD:', payload);
-
       payload.iat = new Date(payload.iat * 1000);
       payload.exp = new Date(payload.exp * 1000);
       request.user = payload;
 
       return true;
     } catch (err) {
-      console.log('JWT ERROR:', err);
-      throw new UnauthorizedException('Invalid Token');
+      if (err instanceof Error && err.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Token expirado');
+      }
+
+      throw new UnauthorizedException('Token inválido');
     }
   }
 }

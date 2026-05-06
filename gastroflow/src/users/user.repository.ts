@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { ResetPasswordDto, UpdateUserDto } from './dto/user.dto';
+import { ChangePasswordDto, ResetPasswordDto, UpdateProfileDto, UpdateUserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from '../common/user.enums';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
@@ -179,5 +179,32 @@ export class UsersRepository {
   async markTokenAsUsed(token: PasswordResetToken): Promise<void> {
     token.used = true;
     await this.tokenRepository.save(token);
+  }
+
+  async updateProfile(
+    id: string,
+    dto: UpdateProfileDto,
+  ): Promise<Omit<User, 'password_hash'>> {
+    const user = await this.ormUsersRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException(`No existe usuario con id ${id}`);
+    if (dto.phone !== undefined) user.phone = dto.phone;
+    if (dto.address !== undefined) user.address = dto.address;
+    const saved = await this.ormUsersRepository.save(user);
+    const { password_hash, ...rest } = saved;
+    return rest;
+  }
+
+  async changePassword(
+    id: string,
+    dto: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    const user = await this.ormUsersRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException(`No existe usuario con id ${id}`);
+    const valid = await bcrypt.compare(dto.currentPassword, user.password_hash);
+    if (!valid)
+      throw new UnauthorizedException('Contraseña actual incorrecta');
+    user.password_hash = await bcrypt.hash(dto.newPassword, 10);
+    await this.ormUsersRepository.save(user);
+    return { message: 'Contraseña actualizada correctamente' };
   }
 }

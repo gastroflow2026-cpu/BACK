@@ -27,9 +27,11 @@ import { AuthGuard } from '../auth/guards/Auth.guard';
 import { UserRole } from '../common/user.enums';
 import {
   AdminResetPasswordDto,
+  ChangePasswordDto,
   ConfirmPasswordResetDto,
   RequestPasswordResetDto,
   ResetPasswordDto,
+  UpdateProfileDto,
   UpdateRoleDto,
   UpdateUserDto,
 } from './dto/user.dto';
@@ -43,12 +45,23 @@ export class UsersController {
   @ApiBearerAuth()
   @Patch('updatepassword')
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Actualizar contraseña de usuario' })
+  @ApiOperation({ summary: 'Actualizar contraseña de usuario (requiere contraseña actual)' })
   async updatePassword(
     @GetUser('id') userId: string,
-    @Body() dto: ResetPasswordDto,
+    @Body() dto: ChangePasswordDto,
   ) {
-    return this.usersService.resetPassword(userId, dto);
+    return this.usersService.changePassword(userId, dto);
+  }
+
+  @ApiBearerAuth()
+  @Patch('profile')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Actualizar teléfono y dirección del perfil propio' })
+  async updateProfile(
+    @GetUser('id') userId: string,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.usersService.updateProfile(userId, dto);
   }
 
   @Get()

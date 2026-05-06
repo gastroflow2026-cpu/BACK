@@ -88,18 +88,19 @@ export class CreateUserDto {
   confirmPassword!: string;
 
   @ApiHideProperty()
-  @IsUUID() //!Verificar cual va a ser el identificador con el que se va a asociar user y el restaurante
-  @IsEmpty()
+  @IsEmpty({
+    message: 'restaurant_id no debe enviarse en el registro público',
+  })
   restaurant_id!: string;
 
   @ApiHideProperty()
-  @IsEmpty() //! Verificar quien va a definir rol
-  @IsEnum(UserRole)
+  @IsEmpty({ message: 'role no debe enviarse en el registro público' })
   role!: UserRole;
 
   @ApiHideProperty()
-  @IsEmpty()
-  @IsEnum(AuthProvider)
+  @IsEmpty({
+    message: 'auth_provider no debe enviarse en el registro público',
+  })
   auth_provider!: AuthProvider;
 
   @IsString()
@@ -243,4 +244,38 @@ export class ConfirmPasswordResetDto {
   @Validate(MatchPassword, ['newPassword'])
   @ApiProperty({ example: 'NewPassword01!' })
   confirmNewPassword!: string;
+}
+
+export class UpdateProfileDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  @ApiPropertyOptional({ example: '1122334455' })
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(150)
+  @ApiPropertyOptional({ example: 'Av. Siempre Viva 123, Springfield' })
+  address?: string;
+}
+
+export class ChangePasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ example: 'OldPassword01!' })
+  currentPassword!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(15)
+  @IsStrongPassword({
+    minLowercase: 1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSymbols: 1,
+  })
+  @ApiProperty({ example: 'NewPassword01!' })
+  newPassword!: string;
 }

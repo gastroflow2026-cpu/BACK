@@ -9,9 +9,10 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AdminChatService } from './admin-chat.service';
+import { getAllowedCorsOrigins } from '../config/cors-origins';
 
 @WebSocketGateway({
-  cors: { origin: '*' },
+  cors: { origin: getAllowedCorsOrigins(), credentials: true },
   namespace: '/admin-chat',
 })
 export class AdminChatGateway

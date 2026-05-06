@@ -7,6 +7,7 @@ import { PlatformService } from './platform.service';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 import { RestaurantVerificationDocument } from '../restaurant-verification/entities/restaurant-verification-document.entity';
 import { Subscription } from '../subscriptions/entities/subscription.entity';
+import { SubscriptionPayment } from '../subscriptions_payments/entities/subscription_payment.entity';
 import { MailModule } from '../mail/mail.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { MailModule } from '../mail/mail.module';
       Restaurant,
       RestaurantVerificationDocument,
       Subscription,
+      SubscriptionPayment,
     ]),
     MailModule,
   ],

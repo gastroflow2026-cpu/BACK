@@ -7,6 +7,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
+import { getAllowedCorsOrigins } from '../../config/cors-origins';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
@@ -16,7 +17,7 @@ interface AuthenticatedSocket extends Socket {
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3001', 'http://localhost:3000'],
+    origin: getAllowedCorsOrigins(),
     credentials: true,
   },
 })

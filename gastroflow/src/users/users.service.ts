@@ -2,16 +2,19 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UsersRepository } from './user.repository';
 import {
   AdminResetPasswordDto,
+  ChangePasswordDto,
   ConfirmPasswordResetDto,
   CreateEmployeeDto,
   RequestPasswordResetDto,
   ResetPasswordDto,
+  UpdateProfileDto,
   UpdateUserDto,
 } from './dto/user.dto';
 import { UserRole } from '../common/user.enums';
@@ -40,6 +43,8 @@ interface RequestUserPayload {
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     private readonly userRepository: UsersRepository,
     private readonly mailService: MailService,
@@ -81,6 +86,14 @@ export class UsersService {
 
   async resetPassword(id: string, dto: ResetPasswordDto) {
     return this.userRepository.resetPassword(id, dto);
+  }
+
+  async updateProfile(id: string, dto: UpdateProfileDto) {
+    return this.userRepository.updateProfile(id, dto);
+  }
+
+  async changePassword(id: string, dto: ChangePasswordDto) {
+    return this.userRepository.changePassword(id, dto);
   }
 
   async getEmployees(
@@ -127,12 +140,18 @@ export class UsersService {
       where: { id: restaurantId },
     });
 
-    await this.mailService.sendEmployeeCreatedEmail({
-      to: employee.email,
-      name: `${employee.first_name} ${employee.last_name}`,
-      role: employee.role,
-      restaurantName: restaurant?.name ?? 'tu restaurante',
-    });
+    this.mailService
+      .sendEmployeeCreatedEmail({
+        to: employee.email,
+        name: `${employee.first_name} ${employee.last_name}`,
+        role: employee.role,
+        restaurantName: restaurant?.name ?? 'tu restaurante',
+      })
+      .catch(() => {
+        this.logger.warn(
+          `Empleado ${employee.id} creado, pero fallo el correo de bienvenida`,
+        );
+      });
 
     return this.toEmployeeResponse(employee);
   }
@@ -152,11 +171,17 @@ export class UsersService {
       isActive,
     );
     if (!isActive) {
-      await this.mailService.sendEmployeeDismissedEmail({
-        to: updatedEmployee.email,
-        name: updatedEmployee.first_name,
-        role: this.toEmployeeRole(updatedEmployee.role),
-      });
+      this.mailService
+        .sendEmployeeDismissedEmail({
+          to: updatedEmployee.email,
+          name: updatedEmployee.first_name,
+          role: this.toEmployeeRole(updatedEmployee.role),
+        })
+        .catch(() => {
+          this.logger.warn(
+            `Empleado ${updatedEmployee.id} desactivado, pero fallo el correo`,
+          );
+        });
     }
 
     return this.toEmployeeResponse(updatedEmployee);

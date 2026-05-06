@@ -79,8 +79,8 @@ export class AuthController {
     const isRegisterFlow = req.query?.state === 'register';
     const isNewGoogleUser = Boolean(req.user?.isNewGoogleUser);
     const errorBaseUrl = isRegisterFlow
-      ? `${environment.FRONTEND_URL}/register`
-      : `${environment.FRONTEND_URL}/login`;
+      ? `${environment.FRONTEND_AUTH_REDIRECT_URL}/register`
+      : `${environment.FRONTEND_AUTH_REDIRECT_URL}/login`;
     if (res.headersSent) {
       return;
     }
@@ -95,7 +95,7 @@ export class AuthController {
 
     if (isRegisterFlow && isNewGoogleUser) {
       return res.redirect(
-        `${environment.FRONTEND_URL}/login?registered=google_success`,
+        `${environment.FRONTEND_AUTH_REDIRECT_URL}/login?registered=google_success`,
       );
     }
 
@@ -112,7 +112,7 @@ export class AuthController {
     }
 
     return res.redirect(
-      `${environment.FRONTEND_URL}?token=${encodeURIComponent(response.token)}`,
+      `${environment.FRONTEND_AUTH_REDIRECT_URL}?token=${encodeURIComponent(response.token)}`,
     );
   }
 
