@@ -223,14 +223,14 @@ export class ReservationsRepository {
         id: reservationId,
         restaurant: { id: restaurantId },
       },
-      relations: ['table', 'user'],
+      relations: ['table', 'user', 'restaurant'],
     });
 
     if (!reservation) {
       throw new NotFoundException('Reserva no encontrada');
     }
 
-    if (reservation.status === 'CANCELADO') {
+    if (reservation.status === ReservationStatus.CANCELADO) {
       throw new BadRequestException('La reserva ya está cancelada');
     }
 
@@ -242,6 +242,17 @@ export class ReservationsRepository {
       RestaurantTableStatus.AVAILABLE,
     );
 
-    return this.reservationsRepository.save(reservation);
+    await this.reservationsRepository.save(reservation);
+
+    const cancelledReservation = await this.reservationsRepository.findOne({
+      where: { id: reservation.id },
+      relations: ['table', 'user', 'restaurant'],
+    });
+
+    if (!cancelledReservation) {
+      throw new NotFoundException('Reserva cancelada no encontrada');
+    }
+
+    return cancelledReservation;
   }
 }

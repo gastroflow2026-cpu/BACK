@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { newReservation } from './dto/reservation.dto';
-import { CreateReservationResult, ReservationsRepository } from './reservations.repository';
+import {
+  CreateReservationResult,
+  ReservationsRepository,
+} from './reservations.repository';
 import { MailService } from '../mail/mail.service';
 import { CashierReservationsQueryDto } from './dto/cashier-reservations-query.dto';
 import { ReservationGateway } from './gateways/reservation.gateway';
@@ -42,7 +45,7 @@ export class ReservationsService {
     restaurantId: string,
     reservationData: newReservation,
     userId: string,
-  ) : Promise<CreateReservationResult> {
+  ): Promise<CreateReservationResult> {
     const { reservation, paymentUrl } =
       await this.reservationsRepository.createNewReservation(
         restaurantId,
@@ -50,9 +53,7 @@ export class ReservationsService {
         userId,
       );
 
-    if (reservation.user?.email) {
-      this.dispatchReservationCreatedEmail(reservation);
-    }
+    this.dispatchReservationCreatedEmail(reservation);
 
     this.reservationGateway.emitToRestaurant(
       restaurantId,
@@ -70,9 +71,7 @@ export class ReservationsService {
         reservationId,
       );
 
-    if (cancelledReservation?.user?.email) {
-      this.dispatchReservationCancelledEmail(cancelledReservation);
-    }
+    this.dispatchReservationCancelledEmail(cancelledReservation);
 
     this.reservationGateway.emitToRestaurant(
       restaurantId,
@@ -106,29 +105,91 @@ export class ReservationsService {
   }
 
   private dispatchReservationCreatedEmail(reservation: Reservation): void {
+    if (!reservation.customer_email) {
+      this.logger.warn(
+        `No se envio correo de reserva creada: la reserva ${reservation.id} no tiene customer_email`,
+      );
+      return;
+    }
+
+    const startTime = new Date(reservation.start_time);
+
+    if (Number.isNaN(startTime.getTime())) {
+      this.logger.warn(
+        `No se envio correo de reserva creada: start_time invalido para reserva ${reservation.id}`,
+      );
+      return;
+    }
+
+    this.logger.log(
+      `Intentando enviar correo de reserva creada a ${reservation.customer_email}`,
+    );
+
     this.mailService
       .sendReservationCreatedEmail({
-        to: reservation.user.email,
-        name: reservation.user.first_name,
-        date: reservation.start_time.toLocaleDateString('es-CO'),
-        time: reservation.start_time.toLocaleTimeString('es-CO'),
+        to: reservation.customer_email,
+        name: reservation.customer_name ?? 'cliente',
+        restaurantName: reservation.restaurant?.name ?? 'GastroFlow',
+        date: startTime.toLocaleDateString('es-CO'),
+        time: startTime.toLocaleTimeString('es-CO', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       })
-      .catch(() => {
-        this.logger.warn(
-          'La reserva se creo correctamente, pero fallo el envio del correo',
+      .then(() => {
+        this.logger.log(
+          `Correo de reserva creada enviado a ${reservation.customer_email}`,
+        );
+      })
+      .catch((error) => {
+        this.logger.error(
+          'Error enviando correo de reserva creada',
+          error.stack ?? error.message,
         );
       });
   }
 
   private dispatchReservationCancelledEmail(reservation: Reservation): void {
+    if (!reservation.customer_email) {
+      this.logger.warn(
+        `No se envio correo de reserva cancelada: la reserva ${reservation.id} no tiene customer_email`,
+      );
+      return;
+    }
+
+    const startTime = new Date(reservation.start_time);
+
+    if (Number.isNaN(startTime.getTime())) {
+      this.logger.warn(
+        `No se envio correo de reserva cancelada: start_time invalido para reserva ${reservation.id}`,
+      );
+      return;
+    }
+
+    this.logger.log(
+      `Intentando enviar correo de reserva cancelada a ${reservation.customer_email}`,
+    );
+
     this.mailService
       .sendReservationCancelledEmail({
-        to: reservation.user.email,
-        name: reservation.user.first_name,
+        to: reservation.customer_email,
+        name: reservation.customer_name ?? 'cliente',
+        restaurantName: reservation.restaurant?.name ?? 'GastroFlow',
+        date: startTime.toLocaleDateString('es-CO'),
+        time: startTime.toLocaleTimeString('es-CO', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       })
-      .catch(() => {
-        this.logger.warn(
-          'La reserva se cancelo correctamente, pero fallo el envio del correo',
+      .then(() => {
+        this.logger.log(
+          `Correo de reserva cancelada enviado a ${reservation.customer_email}`,
+        );
+      })
+      .catch((error) => {
+        this.logger.error(
+          'Error enviando correo de reserva cancelada',
+          error.stack ?? error.message,
         );
       });
   }

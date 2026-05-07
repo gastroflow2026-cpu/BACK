@@ -73,15 +73,17 @@ export class MailService {
   async sendReservationCreatedEmail(data: {
     to: string;
     name: string;
+    restaurantName: string;
     date: string;
     time: string;
   }): Promise<void> {
     await this.sendTemplateMail({
       to: data.to,
-      subject: 'Reserva confirmada',
+      subject: `Reserva confirmada en ${data.restaurantName}`,
       template: 'reservation-created',
       context: {
         name: data.name,
+        restaurantName: data.restaurantName,
         date: data.date,
         time: data.time,
       },
@@ -121,13 +123,19 @@ export class MailService {
   async sendReservationCancelledEmail(data: {
     to: string;
     name: string;
+    restaurantName: string;
+    date: string;
+    time: string;
   }): Promise<void> {
     await this.sendTemplateMail({
       to: data.to,
-      subject: 'Reserva cancelada',
+      subject: `Reserva cancelada en ${data.restaurantName}`,
       template: 'reservation-cancelled',
       context: {
         name: data.name,
+        restaurantName: data.restaurantName,
+        date: data.date,
+        time: data.time,
       },
     });
   }
