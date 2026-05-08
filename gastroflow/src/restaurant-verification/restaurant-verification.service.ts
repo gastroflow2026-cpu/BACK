@@ -76,6 +76,25 @@ export class RestaurantVerificationService {
     return await this.documentRepository.save(document);
   }
 
+  async uploadRestaurantImage(user: AuthenticatedUserPayload, file: Express.Multer.File) {
+  if (!user.restaurant_id) {
+    throw new BadRequestException('El usuario no tiene un restaurante vinculado');
+  }
+
+  const uploadResponse = await this.uploadRepository.uploadDocument(
+    file,
+    user.restaurant_id,
+    'restaurant_image' as any,
+  );
+
+  await this.restaurantRepository.update(
+    { id: user.restaurant_id },
+    { image_url: uploadResponse.secure_url },
+  );
+
+  return { image_url: uploadResponse.secure_url };
+  }
+
   async getMyDocuments(user: AuthenticatedUserPayload) {
     if (!user.restaurant_id) {
       throw new BadRequestException(

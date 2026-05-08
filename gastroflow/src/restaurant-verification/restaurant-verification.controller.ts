@@ -82,6 +82,37 @@ export class RestaurantVerificationController {
     );
   }
 
+  @Post('image')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  async uploadRestaurantImage(
+    @Req() req,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({
+            maxSize: 5 * 1024 * 1024,
+            message: 'El archivo debe ser menor a 5 MB',
+          }),
+          new FileTypeValidator({
+            fileType: /(image\/jpeg|image\/jpg|image\/png|image\/webp)/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.restaurantVerificationService.uploadRestaurantImage(req.user, file);
+  }
+
   @Get('documents/me')
   getMyDocuments(@Req() req) {
     return this.restaurantVerificationService.getMyDocuments(req.user);

@@ -3,7 +3,10 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
+import { BrevoClient } from '@getbrevo/brevo';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
 
 interface SendTemplateMailOptions {
   to: string;
@@ -15,8 +18,24 @@ interface SendTemplateMailOptions {
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
+  private readonly client: InstanceType<typeof BrevoClient>;
+  private readonly from = {
+    email: process.env.MAIL_FROM || 'noreply@gastroflow.com',
+    name: 'Gastroflow',
+  };
 
-  constructor(private readonly mailerService: MailerService) {}
+  constructor() {
+    this.client = new BrevoClient({
+      apiKey: process.env.API_KEY_BREVO!,
+    });
+  }
+
+  private renderTemplate(template: string, context: Record<string, unknown>): string {
+    const templatePath = path.join(process.cwd(), 'src', 'mail', 'templates', `${template}.hbs`);
+    const source = fs.readFileSync(templatePath, 'utf8');
+    const compiled = Handlebars.compile(source);
+    return compiled(context);
+  }
 
   async sendTemplateMail({
     to,
@@ -25,11 +44,13 @@ export class MailService {
     context = {},
   }: SendTemplateMailOptions): Promise<void> {
     try {
-      await this.mailerService.sendMail({
-        to,
+      const html = this.renderTemplate(template, context);
+
+      await this.client.transactionalEmails.sendTransacEmail({
+        to: [{ email: to }],
+        sender: this.from,
         subject,
-        template,
-        context,
+        htmlContent: html,
       });
 
       this.logger.log(`Correo enviado a ${to} con template ${template}`);
@@ -48,25 +69,16 @@ export class MailService {
       to,
       subject: 'Bienvenido a Gastroflow',
       template: 'welcome',
-      context: {
-        name,
-      },
+      context: { name },
     });
   }
 
-  async sendGenericNotification(
-    to: string,
-    title: string,
-    message: string,
-  ): Promise<void> {
+  async sendGenericNotification(to: string, title: string, message: string): Promise<void> {
     await this.sendTemplateMail({
       to,
       subject: title,
       template: 'generic-notification',
-      context: {
-        title,
-        message,
-      },
+      context: { title, message },
     });
   }
 
@@ -90,27 +102,16 @@ export class MailService {
     });
   }
 
-  async sendSubscriptionActivatedEmail(
-    to: string,
-    name: string,
-    planName: string,
-  ): Promise<void> {
+  async sendSubscriptionActivatedEmail(to: string, name: string, planName: string): Promise<void> {
     await this.sendTemplateMail({
       to,
       subject: 'Tu suscripción está activa',
       template: 'subscription-activated',
-      context: {
-        name,
-        planName,
-      },
+      context: { name, planName },
     });
   }
 
-  async sendPasswordResetEmail(
-    to: string,
-    name: string,
-    token: string,
-  ): Promise<void> {
+  async sendPasswordResetEmail(to: string, name: string, token: string): Promise<void> {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     await this.sendTemplateMail({
       to,
@@ -167,12 +168,10 @@ export class MailService {
       to: data.to,
       subject: 'Suscripción cancelada',
       template: 'subscription-cancelled',
-      context: {
-        name: data.name,
-        planName: data.planName,
-      },
+      context: { name: data.name, planName: data.planName },
     });
   }
+
   async sendRestaurantRejectedEmail(data: {
     to: string;
     name: string;
@@ -188,6 +187,7 @@ export class MailService {
       },
     });
   }
+
   async sendRestaurantSuspendedEmail(data: {
     to: string;
     name: string;
@@ -209,8 +209,8 @@ export class MailService {
     name: string;
     role: string;
     restaurantName: string;
-  }) {
-    await this.mailerService.sendMail({
+  }): Promise<void> {
+    await this.sendTemplateMail({
       to: data.to,
       subject: `Has sido registrado en ${data.restaurantName}`,
       template: 'employee-created',
@@ -231,10 +231,7 @@ export class MailService {
       to: data.to,
       subject: 'Finalización de vinculación laboral',
       template: 'employee-dismissed',
-      context: {
-        name: data.name,
-        role: data.role,
-      },
+      context: { name: data.name, role: data.role },
     });
   }
 
@@ -247,10 +244,7 @@ export class MailService {
       to: data.to,
       subject: 'Suscripción reactivada',
       template: 'subscription-reactivated',
-      context: {
-        name: data.name,
-        planName: data.planName,
-      },
+      context: { name: data.name, planName: data.planName },
     });
   }
 }

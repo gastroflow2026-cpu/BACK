@@ -6,6 +6,8 @@ import 'reflect-metadata';
 import * as express from 'express';
 import { ValidationPipe } from '@nestjs/common';
 
+process.env.TZ = 'UTC';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,

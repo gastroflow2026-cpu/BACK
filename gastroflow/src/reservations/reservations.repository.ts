@@ -131,8 +131,19 @@ export class ReservationsRepository {
     reservationData: newReservation,
     userId: string,
   ): Promise<CreateReservationResult> {
-    const startTime = new Date(reservationData.start_time);
+    const startTimeStr = typeof reservationData.start_time === 'string' 
+    ? reservationData.start_time 
+    : (reservationData.start_time as Date).toISOString();
+
+    const normalizedStartTime = startTimeStr.endsWith('Z') ? startTimeStr : startTimeStr + 'Z';
+    console.log('Server timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+    console.log('Server time:', new Date().toISOString());
+    console.log('start_time recibido:', reservationData.start_time);
+    console.log('start_time parseado:', new Date(reservationData.start_time));
+
+    const startTime = new Date(normalizedStartTime);
     const endTime = new Date(startTime.getTime() + (2 * 60 + 15) * 60 * 1000);
+        
 
     const restaurant = await this.restaurantsRepository.findOne({
       where: { id: restaurantId },
@@ -164,8 +175,8 @@ export class ReservationsRepository {
       where: {
         table: { id: reservationData.table_id },
         status: In([ReservationStatus.CONFIRMED, ReservationStatus.PENDING]),
-        start_time: LessThan(endTime),
-        end_time: MoreThan(startTime),
+        start_time: new Date(normalizedStartTime),
+        end_time: new Date(startTime.getTime() + (2 * 60 + 15) * 60 * 1000),
       },
     });
 
