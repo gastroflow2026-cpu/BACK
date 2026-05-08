@@ -28,6 +28,9 @@ export class AuthGuard implements CanActivate {
       const secret = this.configService.get<string>('JWT_SECRET');
       const payload = await this.jwtService.verifyAsync(token, { secret });
 
+      // Backward compatibility for tokens using restaurant_id instead of restaurantId.
+      payload.restaurantId = payload.restaurantId ?? payload.restaurant_id;
+
       payload.iat = new Date(payload.iat * 1000);
       payload.exp = new Date(payload.exp * 1000);
       request.user = payload;

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   DefaultValuePipe,
   Get,
@@ -21,6 +22,17 @@ import { MetricsQueryDto } from './dto/metrics-query.dto';
 export class MetricsController {
   constructor(private readonly metricsService: MetricsService) {}
 
+  private getRestaurantId(user: JwtPayload): string {
+    const restaurantId = user.restaurantId ?? user.restaurant_id;
+    if (!restaurantId) {
+      throw new BadRequestException(
+        'El token no contiene restaurant_id asociado',
+      );
+    }
+
+    return restaurantId;
+  }
+
   /**
    * GET /metrics/summary?period=day|week|month&date=YYYY-MM-DD
    * Resumen de ventas: total, pedidos, ticket promedio + deltas vs período anterior
@@ -30,7 +42,7 @@ export class MetricsController {
     @GetUser() user: JwtPayload,
     @Query() query: MetricsQueryDto,
   ) {
-    return this.metricsService.getSummary(user.restaurantId, query);
+    return this.metricsService.getSummary(this.getRestaurantId(user), query);
   }
 
   /**
@@ -42,9 +54,10 @@ export class MetricsController {
     @GetUser() user: JwtPayload,
     @Query() query: MetricsQueryDto,
   ) {
+    const restaurantId = this.getRestaurantId(user);
     const [byPaymentMethod, byDayOfWeek] = await Promise.all([
-      this.metricsService.getSalesByPaymentMethod(user.restaurantId, query),
-      this.metricsService.getSalesByDayOfWeek(user.restaurantId, query),
+      this.metricsService.getSalesByPaymentMethod(restaurantId, query),
+      this.metricsService.getSalesByDayOfWeek(restaurantId, query),
     ]);
 
     return { byPaymentMethod, byDayOfWeek };
@@ -56,7 +69,7 @@ export class MetricsController {
    */
   @Get('orders/status')
   getOrdersByStatus(@GetUser() user: JwtPayload) {
-    return this.metricsService.getOrdersByStatus(user.restaurantId);
+    return this.metricsService.getOrdersByStatus(this.getRestaurantId(user));
   }
 
   /**
@@ -68,7 +81,7 @@ export class MetricsController {
     @GetUser() user: JwtPayload,
     @Query() query: MetricsQueryDto,
   ) {
-    return this.metricsService.getAvgOrderTime(user.restaurantId, query);
+    return this.metricsService.getAvgOrderTime(this.getRestaurantId(user), query);
   }
 
   /**
@@ -77,7 +90,7 @@ export class MetricsController {
    */
   @Get('tables/occupancy')
   getTablesOccupancy(@GetUser() user: JwtPayload) {
-    return this.metricsService.getTablesOccupancy(user.restaurantId);
+    return this.metricsService.getTablesOccupancy(this.getRestaurantId(user));
   }
 
   /**
@@ -89,7 +102,7 @@ export class MetricsController {
     @GetUser() user: JwtPayload,
     @Query() query: MetricsQueryDto,
   ) {
-    return this.metricsService.getReservationsToday(user.restaurantId, query);
+    return this.metricsService.getReservationsToday(this.getRestaurantId(user), query);
   }
 
   /**
@@ -102,7 +115,11 @@ export class MetricsController {
     @Query() query: MetricsQueryDto,
     @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
   ) {
-    return this.metricsService.getTopMenuItems(user.restaurantId, query, limit);
+    return this.metricsService.getTopMenuItems(
+      this.getRestaurantId(user),
+      query,
+      limit,
+    );
   }
 
   /**
@@ -114,6 +131,9 @@ export class MetricsController {
     @GetUser() user: JwtPayload,
     @Query() query: MetricsQueryDto,
   ) {
-    return this.metricsService.getStaffPerformance(user.restaurantId, query);
+    return this.metricsService.getStaffPerformance(
+      this.getRestaurantId(user),
+      query,
+    );
   }
 }
